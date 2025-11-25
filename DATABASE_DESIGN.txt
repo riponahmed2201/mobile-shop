@@ -1,0 +1,1282 @@
+-- ============================================
+-- MULTI-TENANT MOBILE SHOP MANAGEMENT SYSTEM
+-- Complete Database Schema with Subscription Model
+-- ============================================
+
+-- ============================================
+-- CORE MULTI-TENANT TABLES
+-- ============================================
+
+-- Subscription Plans Table
+CREATE TABLE subscription_plans (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    plan_name VARCHAR(100) NOT NULL,
+    plan_type ENUM('FREE', 'BASIC', 'PROFESSIONAL', 'ENTERPRISE') NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    billing_cycle ENUM('MONTHLY', 'QUARTERLY', 'YEARLY') NOT NULL,
+    max_users INT DEFAULT 1,
+    max_customers INT DEFAULT NULL, -- NULL = unlimited
+    max_products INT DEFAULT NULL,
+    max_sms_monthly INT DEFAULT 0,
+    features JSON, -- Store enabled features as JSON
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Tenants (Shops) Table
+CREATE TABLE tenants (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_code VARCHAR(50) UNIQUE NOT NULL, -- Unique shop identifier
+    shop_name VARCHAR(200) NOT NULL,
+    owner_name VARCHAR(100) NOT NULL,
+    owner_email VARCHAR(100) UNIQUE NOT NULL,
+    owner_phone VARCHAR(20) NOT NULL,
+    business_license VARCHAR(100),
+    shop_address TEXT,
+    city VARCHAR(100),
+    state VARCHAR(100),
+    country VARCHAR(100) DEFAULT 'Bangladesh',
+    postal_code VARCHAR(20),
+    shop_logo_url VARCHAR(255),
+    timezone VARCHAR(50) DEFAULT 'Asia/Dhaka',
+    currency VARCHAR(10) DEFAULT 'BDT',
+    subscription_plan_id BIGINT,
+    subscription_status ENUM('TRIAL', 'ACTIVE', 'SUSPENDED', 'EXPIRED', 'CANCELLED') DEFAULT 'TRIAL',
+    subscription_start_date DATE,
+    subscription_end_date DATE,
+    trial_ends_at DATE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (subscription_plan_id) REFERENCES subscription_plans(id)
+);
+
+-- Subscription History
+CREATE TABLE subscription_history (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    subscription_plan_id BIGINT NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    amount_paid DECIMAL(10,2) NOT NULL,
+    payment_method ENUM('CASH', 'BKASH', 'NAGAD', 'BANK', 'CARD', 'OTHER'),
+    payment_status ENUM('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED') DEFAULT 'PENDING',
+    transaction_id VARCHAR(100),
+    invoice_number VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (subscription_plan_id) REFERENCES subscription_plans(id)
+);
+
+-- ============================================
+-- USER MANAGEMENT
+-- ============================================
+
+CREATE TABLE users (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    username VARCHAR(100) NOT NULL,
+    email VARCHAR(100),
+    phone VARCHAR(20) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('OWNER', 'MANAGER', 'SALES', 'TECHNICIAN', 'ACCOUNTANT') DEFAULT 'SALES',
+    profile_image_url VARCHAR(255),
+    is_active BOOLEAN DEFAULT TRUE,
+    last_login_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_user_tenant (tenant_id, email),
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
+);
+
+-- User Permissions
+CREATE TABLE user_permissions (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    permission_module VARCHAR(50) NOT NULL, -- e.g., 'customers', 'sales', 'inventory'
+    can_view BOOLEAN DEFAULT FALSE,
+    can_create BOOLEAN DEFAULT FALSE,
+    can_edit BOOLEAN DEFAULT FALSE,
+    can_delete BOOLEAN DEFAULT FALSE,
+    can_export BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- ============================================
+-- CUSTOMER MANAGEMENT
+-- ============================================
+
+CREATE TABLE customers (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    customer_code VARCHAR(50),
+    full_name VARCHAR(200) NOT NULL,
+    mobile_primary VARCHAR(20) NOT NULL,
+    mobile_alternative VARCHAR(20),
+    email VARCHAR(100),
+    address TEXT,
+    city VARCHAR(100),
+    postal_code VARCHAR(20),
+    date_of_birth DATE,
+    customer_type ENUM('NEW', 'REGULAR', 'VIP', 'WHOLESALE') DEFAULT 'NEW',
+    total_purchases DECIMAL(12,2) DEFAULT 0.00,
+    total_repairs INT DEFAULT 0,
+    loyalty_points INT DEFAULT 0,
+    credit_limit DECIMAL(10,2) DEFAULT 0.00,
+    outstanding_balance DECIMAL(10,2) DEFAULT 0.00,
+    notes TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    last_purchase_date TIMESTAMP NULL,
+    last_contact_date TIMESTAMP NULL,
+    created_by BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_tenant_mobile (tenant_id, mobile_primary),
+    INDEX idx_customer_type (tenant_id, customer_type)
+);
+
+-- Customer Tags
+CREATE TABLE customer_tags (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    customer_id BIGINT NOT NULL,
+    tag_name VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
+);
+
+-- ============================================
+-- PRODUCT MANAGEMENT
+-- ============================================
+
+-- Brands
+CREATE TABLE brands (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    brand_name VARCHAR(100) NOT NULL,
+    brand_logo_url VARCHAR(255),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_brand_tenant (tenant_id, brand_name)
+);
+
+-- Product Categories
+CREATE TABLE product_categories (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    category_name VARCHAR(100) NOT NULL,
+    category_type ENUM('MOBILE', 'ACCESSORY', 'PARTS', 'OTHER') NOT NULL,
+    parent_category_id BIGINT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_category_id) REFERENCES product_categories(id)
+);
+
+-- Products (Mobiles & Accessories)
+CREATE TABLE products (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    product_code VARCHAR(50),
+    product_name VARCHAR(200) NOT NULL,
+    brand_id BIGINT,
+    category_id BIGINT NOT NULL,
+    product_type ENUM('MOBILE', 'ACCESSORY', 'PARTS') NOT NULL,
+    model_name VARCHAR(100),
+    color VARCHAR(50),
+    storage VARCHAR(50), -- e.g., '128GB', '256GB'
+    ram VARCHAR(50),
+    specifications JSON, -- Store detailed specs as JSON
+    purchase_price DECIMAL(10,2) NOT NULL,
+    selling_price DECIMAL(10,2) NOT NULL,
+    mrp DECIMAL(10,2),
+    wholesale_price DECIMAL(10,2),
+    warranty_period INT DEFAULT 0, -- in months
+    warranty_type VARCHAR(100),
+    current_stock INT DEFAULT 0,
+    min_stock_level INT DEFAULT 5,
+    reorder_level INT DEFAULT 10,
+    unit VARCHAR(20) DEFAULT 'PCS',
+    barcode VARCHAR(100),
+    product_image_url VARCHAR(255),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (brand_id) REFERENCES brands(id) ON DELETE SET NULL,
+    FOREIGN KEY (category_id) REFERENCES product_categories(id),
+    INDEX idx_product_type (tenant_id, product_type),
+    INDEX idx_stock_alert (tenant_id, current_stock)
+);
+
+-- IMEI Tracking
+CREATE TABLE product_imei (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    imei_number VARCHAR(50) UNIQUE NOT NULL,
+    serial_number VARCHAR(100),
+    status ENUM('IN_STOCK', 'SOLD', 'DEFECTIVE', 'RETURNED') DEFAULT 'IN_STOCK',
+    purchase_date DATE,
+    sale_date DATE,
+    sold_to_customer_id BIGINT,
+    warranty_expiry_date DATE,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (sold_to_customer_id) REFERENCES customers(id) ON DELETE SET NULL
+);
+
+-- ============================================
+-- SUPPLIER MANAGEMENT
+-- ============================================
+
+CREATE TABLE suppliers (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    supplier_name VARCHAR(200) NOT NULL,
+    contact_person VARCHAR(100),
+    mobile VARCHAR(20) NOT NULL,
+    email VARCHAR(100),
+    address TEXT,
+    city VARCHAR(100),
+    country VARCHAR(100),
+    payment_terms VARCHAR(200),
+    credit_limit DECIMAL(12,2) DEFAULT 0.00,
+    outstanding_balance DECIMAL(12,2) DEFAULT 0.00,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
+);
+
+-- Purchase Orders
+CREATE TABLE purchase_orders (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    supplier_id BIGINT NOT NULL,
+    po_number VARCHAR(50) NOT NULL,
+    po_date DATE NOT NULL,
+    expected_delivery_date DATE,
+    total_amount DECIMAL(12,2) NOT NULL,
+    paid_amount DECIMAL(12,2) DEFAULT 0.00,
+    due_amount DECIMAL(12,2) DEFAULT 0.00,
+    payment_status ENUM('PENDING', 'PARTIAL', 'PAID') DEFAULT 'PENDING',
+    order_status ENUM('DRAFT', 'CONFIRMED', 'RECEIVED', 'CANCELLED') DEFAULT 'DRAFT',
+    invoice_file_url VARCHAR(255),
+    notes TEXT,
+    created_by BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Purchase Order Items
+CREATE TABLE purchase_order_items (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    purchase_order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+    total_price DECIMAL(12,2) NOT NULL,
+    received_quantity INT DEFAULT 0,
+    FOREIGN KEY (purchase_order_id) REFERENCES purchase_orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+-- ============================================
+-- SALES MANAGEMENT
+-- ============================================
+
+CREATE TABLE sales (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    invoice_number VARCHAR(50) NOT NULL,
+    customer_id BIGINT,
+    sale_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    subtotal DECIMAL(12,2) NOT NULL,
+    discount_amount DECIMAL(10,2) DEFAULT 0.00,
+    discount_percentage DECIMAL(5,2) DEFAULT 0.00,
+    tax_amount DECIMAL(10,2) DEFAULT 0.00,
+    total_amount DECIMAL(12,2) NOT NULL,
+    paid_amount DECIMAL(12,2) DEFAULT 0.00,
+    due_amount DECIMAL(12,2) DEFAULT 0.00,
+    payment_method ENUM('CASH', 'CARD', 'BKASH', 'NAGAD', 'BANK', 'EMI', 'MIXED'),
+    payment_status ENUM('PAID', 'PARTIAL', 'UNPAID') DEFAULT 'PAID',
+    sale_type ENUM('RETAIL', 'WHOLESALE', 'EMI') DEFAULT 'RETAIL',
+    sale_status ENUM('COMPLETED', 'CANCELLED', 'RETURNED') DEFAULT 'COMPLETED',
+    notes TEXT,
+    sold_by BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
+    FOREIGN KEY (sold_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_invoice (tenant_id, invoice_number),
+    INDEX idx_sale_date (tenant_id, sale_date)
+);
+
+-- Sale Items
+CREATE TABLE sale_items (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    sale_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    imei_id BIGINT, -- For mobile phones
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+    discount_amount DECIMAL(10,2) DEFAULT 0.00,
+    total_price DECIMAL(12,2) NOT NULL,
+    warranty_months INT DEFAULT 0,
+    warranty_expiry_date DATE,
+    FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (imei_id) REFERENCES product_imei(id) ON DELETE SET NULL
+);
+
+-- EMI/Installment Plans
+CREATE TABLE emi_plans (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    sale_id BIGINT NOT NULL,
+    customer_id BIGINT NOT NULL,
+    total_amount DECIMAL(12,2) NOT NULL,
+    down_payment DECIMAL(10,2) NOT NULL,
+    installment_amount DECIMAL(10,2) NOT NULL,
+    number_of_installments INT NOT NULL,
+    interest_rate DECIMAL(5,2) DEFAULT 0.00,
+    start_date DATE NOT NULL,
+    paid_installments INT DEFAULT 0,
+    remaining_amount DECIMAL(12,2) NOT NULL,
+    status ENUM('ACTIVE', 'COMPLETED', 'DEFAULTED', 'CANCELLED') DEFAULT 'ACTIVE',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (sale_id) REFERENCES sales(id),
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+-- EMI Installments
+CREATE TABLE emi_installments (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    emi_plan_id BIGINT NOT NULL,
+    installment_number INT NOT NULL,
+    due_date DATE NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    paid_amount DECIMAL(10,2) DEFAULT 0.00,
+    payment_date DATE,
+    payment_method VARCHAR(50),
+    status ENUM('PENDING', 'PAID', 'OVERDUE', 'WAIVED') DEFAULT 'PENDING',
+    late_fee DECIMAL(10,2) DEFAULT 0.00,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (emi_plan_id) REFERENCES emi_plans(id) ON DELETE CASCADE
+);
+
+-- ============================================
+-- REPAIR SERVICE MANAGEMENT
+-- ============================================
+
+CREATE TABLE repair_tickets (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    ticket_number VARCHAR(50) NOT NULL,
+    customer_id BIGINT NOT NULL,
+    device_brand VARCHAR(100),
+    device_model VARCHAR(100),
+    imei_number VARCHAR(50),
+    problem_description TEXT NOT NULL,
+    estimated_cost DECIMAL(10,2),
+    final_cost DECIMAL(10,2),
+    advance_payment DECIMAL(10,2) DEFAULT 0.00,
+    status ENUM('RECEIVED', 'DIAGNOSED', 'IN_PROGRESS', 'PARTS_PENDING', 'READY', 'DELIVERED', 'CANCELLED') DEFAULT 'RECEIVED',
+    priority ENUM('LOW', 'NORMAL', 'HIGH', 'URGENT') DEFAULT 'NORMAL',
+    assigned_to BIGINT, -- Technician
+    received_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    estimated_delivery_date DATE,
+    actual_delivery_date DATE,
+    warranty_repair BOOLEAN DEFAULT FALSE,
+    notes TEXT,
+    created_by BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id),
+    FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_status (tenant_id, status)
+);
+
+-- Repair Parts Used
+CREATE TABLE repair_parts (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    repair_ticket_id BIGINT NOT NULL,
+    product_id BIGINT,
+    part_name VARCHAR(200) NOT NULL,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (repair_ticket_id) REFERENCES repair_tickets(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+);
+
+-- Repair Status History
+CREATE TABLE repair_status_history (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    repair_ticket_id BIGINT NOT NULL,
+    old_status VARCHAR(50),
+    new_status VARCHAR(50) NOT NULL,
+    changed_by BIGINT,
+    notes TEXT,
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (repair_ticket_id) REFERENCES repair_tickets(id) ON DELETE CASCADE,
+    FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- ============================================
+-- COMMUNICATION SYSTEM
+-- ============================================
+
+-- SMS/Communication Templates
+CREATE TABLE communication_templates (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    template_name VARCHAR(100) NOT NULL,
+    template_type ENUM('SMS', 'EMAIL', 'WHATSAPP') NOT NULL,
+    message_category ENUM('OFFER', 'REMINDER', 'NOTIFICATION', 'GREETING', 'CUSTOM'),
+    subject VARCHAR(200),
+    message_body TEXT NOT NULL,
+    variables JSON, -- Available variables like {customer_name}, {amount}
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
+);
+
+-- SMS Campaigns
+CREATE TABLE sms_campaigns (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    campaign_name VARCHAR(200) NOT NULL,
+    template_id BIGINT,
+    message_text TEXT NOT NULL,
+    target_audience ENUM('ALL', 'NEW', 'REGULAR', 'VIP', 'INACTIVE', 'CUSTOM') NOT NULL,
+    target_filter JSON, -- Store custom filters
+    total_recipients INT DEFAULT 0,
+    sent_count INT DEFAULT 0,
+    delivered_count INT DEFAULT 0,
+    failed_count INT DEFAULT 0,
+    campaign_status ENUM('DRAFT', 'SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED') DEFAULT 'DRAFT',
+    scheduled_at TIMESTAMP,
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP,
+    created_by BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (template_id) REFERENCES communication_templates(id) ON DELETE SET NULL,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- SMS Logs
+CREATE TABLE sms_logs (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    campaign_id BIGINT,
+    customer_id BIGINT,
+    recipient_number VARCHAR(20) NOT NULL,
+    message_text TEXT NOT NULL,
+    message_type ENUM('TRANSACTIONAL', 'PROMOTIONAL', 'OTP') DEFAULT 'PROMOTIONAL',
+    status ENUM('QUEUED', 'SENT', 'DELIVERED', 'FAILED', 'REJECTED') DEFAULT 'QUEUED',
+    provider_response TEXT,
+    cost DECIMAL(6,4) DEFAULT 0.00,
+    sent_at TIMESTAMP,
+    delivered_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (campaign_id) REFERENCES sms_campaigns(id) ON DELETE SET NULL,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
+    INDEX idx_status (tenant_id, status)
+);
+
+-- Call Logs
+CREATE TABLE call_logs (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    customer_id BIGINT,
+    user_id BIGINT,
+    phone_number VARCHAR(20) NOT NULL,
+    call_type ENUM('INCOMING', 'OUTGOING', 'MISSED') NOT NULL,
+    call_duration INT, -- in seconds
+    call_purpose VARCHAR(200),
+    call_notes TEXT,
+    call_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- ============================================
+-- FINANCE & ACCOUNTING
+-- ============================================
+
+-- Expense Categories
+CREATE TABLE expense_categories (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    category_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE
+);
+
+-- Expenses
+CREATE TABLE expenses (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    expense_category_id BIGINT NOT NULL,
+    expense_date DATE NOT NULL,
+    amount DECIMAL(12,2) NOT NULL,
+    payment_method ENUM('CASH', 'CARD', 'BANK', 'BKASH', 'NAGAD', 'OTHER'),
+    reference_number VARCHAR(100),
+    description TEXT,
+    receipt_file_url VARCHAR(255),
+    created_by BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (expense_category_id) REFERENCES expense_categories(id),
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Cash Transactions (Daily Cash Book)
+CREATE TABLE cash_transactions (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    transaction_type ENUM('SALE', 'PURCHASE', 'EXPENSE', 'PAYMENT_RECEIVED', 'PAYMENT_MADE', 'OPENING_BALANCE', 'ADJUSTMENT'),
+    reference_type VARCHAR(50), -- 'sale', 'purchase', 'expense'
+    reference_id BIGINT, -- ID of the related record
+    amount DECIMAL(12,2) NOT NULL,
+    payment_method ENUM('CASH', 'CARD', 'BKASH', 'NAGAD', 'BANK', 'OTHER'),
+    description TEXT,
+    created_by BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_transaction_date (tenant_id, transaction_date)
+);
+
+-- ============================================
+-- WARRANTY & SERVICE TRACKING
+-- ============================================
+
+CREATE TABLE warranty_claims (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    customer_id BIGINT NOT NULL,
+    sale_id BIGINT,
+    product_id BIGINT NOT NULL,
+    imei_id BIGINT,
+    claim_date DATE NOT NULL,
+    issue_description TEXT NOT NULL,
+    claim_status ENUM('SUBMITTED', 'APPROVED', 'REJECTED', 'IN_PROGRESS', 'RESOLVED') DEFAULT 'SUBMITTED',
+    resolution_notes TEXT,
+    resolved_date DATE,
+    replacement_product_id BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id),
+    FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE SET NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (imei_id) REFERENCES product_imei(id) ON DELETE SET NULL,
+    FOREIGN KEY (replacement_product_id) REFERENCES products(id) ON DELETE SET NULL
+);
+
+-- ============================================
+-- NOTIFICATIONS & AUTOMATION
+-- ============================================
+
+CREATE TABLE notification_settings (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    notification_type ENUM('BIRTHDAY_WISH', 'WARRANTY_EXPIRY', 'EMI_DUE', 'REPAIR_READY', 'LOW_STOCK', 'THANK_YOU') NOT NULL,
+    is_enabled BOOLEAN DEFAULT TRUE,
+    template_id BIGINT,
+    send_days_before INT DEFAULT 0, -- For reminders
+    send_time TIME, -- Preferred time to send
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (template_id) REFERENCES communication_templates(id) ON DELETE SET NULL,
+    UNIQUE KEY unique_notification_type (tenant_id, notification_type)
+);
+
+-- Scheduled Notifications Queue
+CREATE TABLE notification_queue (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    customer_id BIGINT,
+    notification_type VARCHAR(50) NOT NULL,
+    recipient_number VARCHAR(20) NOT NULL,
+    message_text TEXT NOT NULL,
+    scheduled_at TIMESTAMP NOT NULL,
+    status ENUM('PENDING', 'SENT', 'FAILED', 'CANCELLED') DEFAULT 'PENDING',
+    sent_at TIMESTAMP,
+    retry_count INT DEFAULT 0,
+    error_message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
+    INDEX idx_scheduled (tenant_id, status, scheduled_at)
+);
+
+-- ============================================
+-- EMPLOYEE MANAGEMENT
+-- ============================================
+
+CREATE TABLE attendance (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    attendance_date DATE NOT NULL,
+    check_in_time TIME,
+    check_out_time TIME,
+    total_hours DECIMAL(5,2),
+    status ENUM('PRESENT', 'ABSENT', 'HALF_DAY', 'LATE', 'LEAVE') DEFAULT 'PRESENT',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_attendance (tenant_id, user_id, attendance_date)
+);
+
+CREATE TABLE leave_requests (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    leave_type ENUM('SICK', 'CASUAL', 'ANNUAL', 'UNPAID', 'OTHER') NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    total_days INT NOT NULL,
+    reason TEXT,
+    status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
+    approved_by BIGINT,
+    approval_notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- ============================================
+-- OFFERS & DISCOUNT CAMPAIGNS
+-- ============================================
+
+CREATE TABLE offers (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    offer_name VARCHAR(200) NOT NULL,
+    offer_code VARCHAR(50),
+    offer_type ENUM('PERCENTAGE', 'FLAT', 'BUY_X_GET_Y', 'FREE_SHIPPING') NOT NULL,
+    discount_value DECIMAL(10,2) NOT NULL,
+    min_purchase_amount DECIMAL(10,2) DEFAULT 0.00,
+    max_discount_amount DECIMAL(10,2),
+    applicable_on ENUM('ALL', 'CATEGORY', 'BRAND', 'PRODUCT') DEFAULT 'ALL',
+    applicable_items JSON, -- Store IDs of products/categories/brands
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    usage_limit INT, -- NULL = unlimited
+    usage_count INT DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    terms_conditions TEXT,
+    created_by BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Offer Usage Tracking
+CREATE TABLE offer_usage (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    offer_id BIGINT NOT NULL,
+    sale_id BIGINT NOT NULL,
+    customer_id BIGINT,
+    discount_amount DECIMAL(10,2) NOT NULL,
+    used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (offer_id) REFERENCES offers(id) ON DELETE CASCADE,
+    FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
+);
+
+-- ============================================
+-- STOCK MANAGEMENT
+-- ============================================
+
+CREATE TABLE stock_adjustments (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    adjustment_type ENUM('ADD', 'REMOVE', 'DAMAGED', 'LOST', 'FOUND', 'RETURN') NOT NULL,
+    quantity INT NOT NULL,
+    reason TEXT,
+    reference_number VARCHAR(100),
+    adjusted_by BIGINT,
+    adjustment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (adjusted_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE stock_transfers (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    from_location VARCHAR(100),
+    to_location VARCHAR(100),
+    transfer_date DATE NOT NULL,
+    status ENUM('PENDING', 'IN_TRANSIT', 'COMPLETED', 'CANCELLED') DEFAULT 'PENDING',
+    notes TEXT,
+    transferred_by BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (transferred_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE stock_transfer_items (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    stock_transfer_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    quantity INT NOT NULL,
+    received_quantity INT DEFAULT 0,
+    FOREIGN KEY (stock_transfer_id) REFERENCES stock_transfers(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+-- ============================================
+-- SYSTEM SETTINGS & CONFIGURATION
+-- ============================================
+
+CREATE TABLE tenant_settings (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    setting_key VARCHAR(100) NOT NULL,
+    setting_value TEXT,
+    setting_type ENUM('STRING', 'NUMBER', 'BOOLEAN', 'JSON') DEFAULT 'STRING',
+    description TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_setting (tenant_id, setting_key)
+);
+
+CREATE TABLE api_integrations (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    integration_name VARCHAR(100) NOT NULL, -- 'SMS_PROVIDER', 'WHATSAPP_API', 'PAYMENT_GATEWAY'
+    provider_name VARCHAR(100), -- 'Twilio', 'BulkSMS', etc.
+    api_key VARCHAR(255),
+    api_secret VARCHAR(255),
+    webhook_url VARCHAR(255),
+    config_data JSON, -- Additional configuration
+    is_active BOOLEAN DEFAULT FALSE,
+    last_sync_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_integration (tenant_id, integration_name)
+);
+
+-- ============================================
+-- AUDIT LOGS
+-- ============================================
+
+CREATE TABLE audit_logs (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    user_id BIGINT,
+    action VARCHAR(100) NOT NULL, -- 'CREATE', 'UPDATE', 'DELETE', 'LOGIN', etc.
+    entity_type VARCHAR(100), -- 'sale', 'customer', 'product', etc.
+    entity_id BIGINT,
+    old_values JSON,
+    new_values JSON,
+    ip_address VARCHAR(50),
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_entity (tenant_id, entity_type, entity_id),
+    INDEX idx_user_action (tenant_id, user_id, action)
+);
+
+-- ============================================
+-- ACTIVITY LOGS (User Actions)
+-- ============================================
+
+CREATE TABLE activity_logs (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    user_id BIGINT,
+    activity_type VARCHAR(100) NOT NULL,
+    description TEXT,
+    metadata JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_activity_date (tenant_id, created_at)
+);
+
+-- ============================================
+-- REPORTS & ANALYTICS
+-- ============================================
+
+CREATE TABLE saved_reports (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    report_name VARCHAR(200) NOT NULL,
+    report_type VARCHAR(100) NOT NULL, -- 'SALES', 'INVENTORY', 'CUSTOMER', etc.
+    filters JSON, -- Store report filters
+    columns JSON, -- Store selected columns
+    is_favorite BOOLEAN DEFAULT FALSE,
+    is_scheduled BOOLEAN DEFAULT FALSE,
+    schedule_frequency ENUM('DAILY', 'WEEKLY', 'MONTHLY'),
+    schedule_day VARCHAR(20), -- Day of week/month
+    schedule_time TIME,
+    email_recipients JSON, -- Array of email addresses
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- ============================================
+-- DASHBOARD WIDGETS
+-- ============================================
+
+CREATE TABLE dashboard_widgets (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    user_id BIGINT,
+    widget_type VARCHAR(100) NOT NULL, -- 'SALES_TODAY', 'TOP_PRODUCTS', 'LOW_STOCK', etc.
+    widget_title VARCHAR(200),
+    widget_position INT DEFAULT 0,
+    widget_size ENUM('SMALL', 'MEDIUM', 'LARGE') DEFAULT 'MEDIUM',
+    widget_config JSON,
+    is_visible BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- ============================================
+-- CUSTOMER FEEDBACK & REVIEWS
+-- ============================================
+
+CREATE TABLE customer_feedback (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    customer_id BIGINT,
+    sale_id BIGINT,
+    repair_ticket_id BIGINT,
+    feedback_type ENUM('SALE', 'REPAIR', 'SERVICE', 'GENERAL') NOT NULL,
+    rating INT CHECK (rating >= 1 AND rating <= 5),
+    feedback_text TEXT,
+    is_public BOOLEAN DEFAULT FALSE,
+    response_text TEXT,
+    responded_by BIGINT,
+    responded_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
+    FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE SET NULL,
+    FOREIGN KEY (repair_ticket_id) REFERENCES repair_tickets(id) ON DELETE SET NULL,
+    FOREIGN KEY (responded_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- ============================================
+-- RETURNS & REFUNDS
+-- ============================================
+
+CREATE TABLE returns (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    return_number VARCHAR(50) NOT NULL,
+    sale_id BIGINT NOT NULL,
+    customer_id BIGINT NOT NULL,
+    return_date DATE NOT NULL,
+    return_reason TEXT NOT NULL,
+    return_type ENUM('REFUND', 'EXCHANGE', 'STORE_CREDIT') NOT NULL,
+    total_amount DECIMAL(12,2) NOT NULL,
+    refund_amount DECIMAL(12,2) DEFAULT 0.00,
+    restocking_fee DECIMAL(10,2) DEFAULT 0.00,
+    status ENUM('PENDING', 'APPROVED', 'REJECTED', 'COMPLETED') DEFAULT 'PENDING',
+    approved_by BIGINT,
+    approval_notes TEXT,
+    processed_by BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (sale_id) REFERENCES sales(id),
+    FOREIGN KEY (customer_id) REFERENCES customers(id),
+    FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (processed_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE return_items (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    return_id BIGINT NOT NULL,
+    sale_item_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    imei_id BIGINT,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+    total_amount DECIMAL(12,2) NOT NULL,
+    condition_notes TEXT,
+    FOREIGN KEY (return_id) REFERENCES returns(id) ON DELETE CASCADE,
+    FOREIGN KEY (sale_item_id) REFERENCES sale_items(id),
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (imei_id) REFERENCES product_imei(id) ON DELETE SET NULL
+);
+
+-- ============================================
+-- LOYALTY PROGRAM
+-- ============================================
+
+CREATE TABLE loyalty_transactions (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    customer_id BIGINT NOT NULL,
+    transaction_type ENUM('EARNED', 'REDEEMED', 'EXPIRED', 'ADJUSTED') NOT NULL,
+    points INT NOT NULL,
+    reference_type VARCHAR(50), -- 'sale', 'referral', 'birthday', etc.
+    reference_id BIGINT,
+    description TEXT,
+    expiry_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
+);
+
+-- ============================================
+-- QUOTATIONS
+-- ============================================
+
+CREATE TABLE quotations (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    quotation_number VARCHAR(50) NOT NULL,
+    customer_id BIGINT,
+    quotation_date DATE NOT NULL,
+    valid_until_date DATE,
+    subtotal DECIMAL(12,2) NOT NULL,
+    discount_amount DECIMAL(10,2) DEFAULT 0.00,
+    tax_amount DECIMAL(10,2) DEFAULT 0.00,
+    total_amount DECIMAL(12,2) NOT NULL,
+    status ENUM('DRAFT', 'SENT', 'ACCEPTED', 'REJECTED', 'EXPIRED', 'CONVERTED') DEFAULT 'DRAFT',
+    notes TEXT,
+    terms_conditions TEXT,
+    converted_to_sale_id BIGINT,
+    created_by BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
+    FOREIGN KEY (converted_to_sale_id) REFERENCES sales(id) ON DELETE SET NULL,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE quotation_items (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    quotation_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+    discount_amount DECIMAL(10,2) DEFAULT 0.00,
+    total_price DECIMAL(12,2) NOT NULL,
+    FOREIGN KEY (quotation_id) REFERENCES quotations(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+-- ============================================
+-- BACKUP & DATA EXPORT LOGS
+-- ============================================
+
+CREATE TABLE data_exports (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    export_type VARCHAR(100) NOT NULL, -- 'CUSTOMERS', 'SALES', 'INVENTORY', 'FULL_BACKUP'
+    file_format ENUM('CSV', 'EXCEL', 'PDF', 'JSON') NOT NULL,
+    file_url VARCHAR(255),
+    file_size_kb INT,
+    filters JSON,
+    status ENUM('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED') DEFAULT 'PENDING',
+    error_message TEXT,
+    expires_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- ============================================
+-- INDEXES FOR PERFORMANCE OPTIMIZATION
+-- ============================================
+
+-- Customer indexes
+CREATE INDEX idx_customer_active ON customers(tenant_id, is_active);
+CREATE INDEX idx_customer_last_purchase ON customers(tenant_id, last_purchase_date);
+
+-- Product indexes
+CREATE INDEX idx_product_active ON products(tenant_id, is_active);
+CREATE INDEX idx_product_brand ON products(tenant_id, brand_id);
+
+-- Sales indexes
+CREATE INDEX idx_sales_customer ON sales(tenant_id, customer_id);
+CREATE INDEX idx_sales_status ON sales(tenant_id, sale_status);
+CREATE INDEX idx_sales_payment_status ON sales(tenant_id, payment_status);
+
+-- IMEI indexes
+CREATE INDEX idx_imei_status ON product_imei(tenant_id, status);
+
+-- Repair indexes
+CREATE INDEX idx_repair_customer ON repair_tickets(tenant_id, customer_id);
+CREATE INDEX idx_repair_technician ON repair_tickets(tenant_id, assigned_to);
+
+-- SMS indexes
+CREATE INDEX idx_sms_date ON sms_logs(tenant_id, created_at);
+
+-- Financial indexes
+CREATE INDEX idx_expense_date ON expenses(tenant_id, expense_date);
+
+-- ============================================
+-- SAMPLE DATA FOR SUBSCRIPTION PLANS
+-- ============================================
+
+INSERT INTO subscription_plans (plan_name, plan_type, price, billing_cycle, max_users, max_customers, max_products, max_sms_monthly, features) VALUES
+('Free Trial', 'FREE', 0.00, 'MONTHLY', 1, 50, 100, 50, 
+ '{"dashboard": true, "customers": true, "sales": true, "inventory": true, "sms": false, "reports": "basic"}'),
+
+('Basic Plan', 'BASIC', 999.00, 'MONTHLY', 2, 500, 500, 500, 
+ '{"dashboard": true, "customers": true, "sales": true, "inventory": true, "sms": true, "repair": false, "reports": "basic", "whatsapp": false}'),
+
+('Professional Plan', 'PROFESSIONAL', 2499.00, 'MONTHLY', 5, NULL, NULL, 2000, 
+ '{"dashboard": true, "customers": true, "sales": true, "inventory": true, "sms": true, "repair": true, "reports": "advanced", "whatsapp": true, "automation": true, "emi": true}'),
+
+('Enterprise Plan', 'ENTERPRISE', 4999.00, 'MONTHLY', NULL, NULL, NULL, 5000, 
+ '{"dashboard": true, "customers": true, "sales": true, "inventory": true, "sms": true, "repair": true, "reports": "advanced", "whatsapp": true, "automation": true, "emi": true, "multi_location": true, "api_access": true, "priority_support": true}');
+
+-- ============================================
+-- VIEWS FOR COMMON QUERIES
+-- ============================================
+
+-- Daily Sales Summary View
+CREATE VIEW vw_daily_sales_summary AS
+SELECT 
+    s.tenant_id,
+    DATE(s.sale_date) as sale_date,
+    COUNT(s.id) as total_sales,
+    SUM(s.total_amount) as total_revenue,
+    SUM(s.paid_amount) as total_paid,
+    SUM(s.due_amount) as total_due,
+    COUNT(DISTINCT s.customer_id) as unique_customers
+FROM sales s
+WHERE s.sale_status = 'COMPLETED'
+GROUP BY s.tenant_id, DATE(s.sale_date);
+
+-- Low Stock Products View
+CREATE VIEW vw_low_stock_products AS
+SELECT 
+    p.tenant_id,
+    p.id,
+    p.product_name,
+    b.brand_name,
+    p.current_stock,
+    p.min_stock_level,
+    p.reorder_level,
+    CASE 
+        WHEN p.current_stock = 0 THEN 'OUT_OF_STOCK'
+        WHEN p.current_stock <= p.min_stock_level THEN 'CRITICAL'
+        WHEN p.current_stock <= p.reorder_level THEN 'LOW'
+    END as stock_status
+FROM products p
+LEFT JOIN brands b ON p.brand_id = b.id
+WHERE p.is_active = TRUE 
+AND p.current_stock <= p.reorder_level;
+
+-- Customer Purchase Summary View
+CREATE VIEW vw_customer_purchase_summary AS
+SELECT 
+    c.tenant_id,
+    c.id as customer_id,
+    c.full_name,
+    c.mobile_primary,
+    c.customer_type,
+    COUNT(DISTINCT s.id) as total_purchases,
+    SUM(s.total_amount) as total_spent,
+    MAX(s.sale_date) as last_purchase_date,
+    DATEDIFF(CURDATE(), MAX(s.sale_date)) as days_since_last_purchase
+FROM customers c
+LEFT JOIN sales s ON c.id = s.customer_id AND s.sale_status = 'COMPLETED'
+WHERE c.is_active = TRUE
+GROUP BY c.tenant_id, c.id, c.full_name, c.mobile_primary, c.customer_type;
+
+-- Top Selling Products View
+CREATE VIEW vw_top_selling_products AS
+SELECT 
+    si.product_id,
+    p.tenant_id,
+    p.product_name,
+    b.brand_name,
+    COUNT(si.id) as times_sold,
+    SUM(si.quantity) as total_quantity_sold,
+    SUM(si.total_price) as total_revenue
+FROM sale_items si
+INNER JOIN products p ON si.product_id = p.id
+LEFT JOIN brands b ON p.brand_id = b.id
+INNER JOIN sales s ON si.sale_id = s.id
+WHERE s.sale_status = 'COMPLETED'
+GROUP BY si.product_id, p.tenant_id, p.product_name, b.brand_name;
+
+-- ============================================
+-- TRIGGERS
+-- ============================================
+
+-- Auto-update product stock after sale
+DELIMITER //
+CREATE TRIGGER after_sale_item_insert
+AFTER INSERT ON sale_items
+FOR EACH ROW
+BEGIN
+    UPDATE products 
+    SET current_stock = current_stock - NEW.quantity
+    WHERE id = NEW.product_id;
+    
+    -- Update IMEI status if applicable
+    IF NEW.imei_id IS NOT NULL THEN
+        UPDATE product_imei 
+        SET status = 'SOLD', sale_date = NOW()
+        WHERE id = NEW.imei_id;
+    END IF;
+END//
+DELIMITER ;
+
+-- Auto-update customer purchase stats
+DELIMITER //
+CREATE TRIGGER after_sale_insert
+AFTER INSERT ON sales
+FOR EACH ROW
+BEGIN
+    IF NEW.customer_id IS NOT NULL THEN
+        UPDATE customers 
+        SET total_purchases = total_purchases + NEW.total_amount,
+            last_purchase_date = NEW.sale_date,
+            outstanding_balance = outstanding_balance + NEW.due_amount
+        WHERE id = NEW.customer_id;
+    END IF;
+END//
+DELIMITER ;
+
+-- Auto-update stock from purchase order
+DELIMITER //
+CREATE TRIGGER after_po_item_receive
+AFTER UPDATE ON purchase_order_items
+FOR EACH ROW
+BEGIN
+    IF NEW.received_quantity > OLD.received_quantity THEN
+        UPDATE products 
+        SET current_stock = current_stock + (NEW.received_quantity - OLD.received_quantity)
+        WHERE id = NEW.product_id;
+    END IF;
+END//
+DELIMITER ;
+
+-- ============================================
+-- STORED PROCEDURES
+-- ============================================
+
+-- Get Dashboard Statistics
+DELIMITER //
+CREATE PROCEDURE sp_get_dashboard_stats(IN p_tenant_id BIGINT, IN p_date DATE)
+BEGIN
+    -- Today's sales
+    SELECT 
+        COUNT(id) as total_sales,
+        SUM(total_amount) as total_revenue,
+        SUM(due_amount) as total_due
+    FROM sales
+    WHERE tenant_id = p_tenant_id 
+    AND DATE(sale_date) = p_date
+    AND sale_status = 'COMPLETED';
+    
+    -- New customers today
+    SELECT COUNT(id) as new_customers
+    FROM customers
+    WHERE tenant_id = p_tenant_id 
+    AND DATE(created_at) = p_date;
+    
+    -- Pending repairs
+    SELECT COUNT(id) as pending_repairs
+    FROM repair_tickets
+    WHERE tenant_id = p_tenant_id 
+    AND status NOT IN ('DELIVERED', 'CANCELLED');
+    
+    -- Low stock items
+    SELECT COUNT(id) as low_stock_items
+    FROM products
+    WHERE tenant_id = p_tenant_id 
+    AND current_stock <= min_stock_level
+    AND is_active = TRUE;
+END//
+DELIMITER ;
+
+-- Process Due EMI Reminders
+DELIMITER //
+CREATE PROCEDURE sp_process_emi_reminders(IN p_tenant_id BIGINT, IN p_days_before INT)
+BEGIN
+    INSERT INTO notification_queue (tenant_id, customer_id, notification_type, recipient_number, message_text, scheduled_at)
+    SELECT 
+        p_tenant_id,
+        ep.customer_id,
+        'EMI_DUE',
+        c.mobile_primary,
+        CONCAT('Reminder: Your EMI installment of BDT ', ei.amount, ' is due on ', DATE_FORMAT(ei.due_date, '%d-%b-%Y')),
+        NOW()
+    FROM emi_installments ei
+    INNER JOIN emi_plans ep ON ei.emi_plan_id = ep.id
+    INNER JOIN customers c ON ep.customer_id = c.id
+    WHERE ep.tenant_id = p_tenant_id
+    AND ei.status = 'PENDING'
+    AND DATEDIFF(ei.due_date, CURDATE()) = p_days_before;
+END//
+DELIMITER ;
+
+-- ============================================
+-- COMMENTS
+-- ============================================
+
+-- This database schema supports:
+-- 1. Multi-tenancy with complete data isolation
+-- 2. Subscription-based billing with multiple plans
+-- 3. Comprehensive customer management
+-- 4. SMS/WhatsApp marketing campaigns
+-- 5. Complete inventory and sales tracking
+-- 6. Repair service management
+-- 7. EMI/Installment plans
+-- 8. Warranty tracking
+-- 9. Employee management
+-- 10. Financial reporting
+-- 11. Automation and notifications
+-- 12. Audit trails and activity logs
+-- 13. Returns and refunds
+-- 14. Loyalty programs
+-- 15. Multi-user with role-based access
