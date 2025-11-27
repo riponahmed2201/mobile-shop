@@ -22,6 +22,9 @@
                     <label class="form-label" for="brand_logo">Brand Logo (Optional)</label>
                     <input type="file" class="form-control" id="brand_logo" name="brand_logo" accept="image/*" />
                     <small class="text-muted">Accepted formats: JPG, PNG, GIF. Max size: 2MB</small>
+                    <div id="imagePreview" class="mt-3" style="display: none;">
+                        <img id="previewImg" src="" alt="Preview" style="max-height: 150px; max-width: 150px; border: 1px solid #ddd; border-radius: 4px; padding: 5px;">
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Save Brand</button>
             </form>
@@ -29,3 +32,24 @@
     </div>
 </div>
 @endsection
+
+@push('page_js')
+<script>
+    document.getElementById('brand_logo').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const previewDiv = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewDiv.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewDiv.style.display = 'none';
+        }
+    });
+</script>
+@endpush
