@@ -26,8 +26,8 @@
 
     <ul class="menu-inner py-1">
         <!-- Dashboard -->
-        <li class="menu-item active">
-            <a href="dashboard.html" class="menu-link">
+        <li class="menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+            <a href="{{ route('dashboard') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-dashboard"></i>
                 <div data-i18n="Dashboard">Dashboard</div>
             </a>
@@ -111,8 +111,8 @@
                 <div data-i18n="Inventory">Inventory</div>
             </a>
             <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="inventory-products.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('products.*') ? 'active' : '' }}">
+                    <a href="{{ route('products.index') }}" class="menu-link">
                         <div data-i18n="All Products">All Products</div>
                     </a>
                 </li>
@@ -121,13 +121,13 @@
                         <div data-i18n="Add Product">Add Product</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="inventory-brands.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('brands.*') ? 'active' : '' }}">
+                    <a href="{{ route('brands.index') }}" class="menu-link">
                         <div data-i18n="Brands">Brands</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="inventory-categories.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('categories.*') ? 'active' : '' }}">
+                    <a href="{{ route('categories.index') }}" class="menu-link">
                         <div data-i18n="Categories">Categories</div>
                     </a>
                 </li>

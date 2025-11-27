@@ -424,7 +424,7 @@
                         <ul class="p-0 m-0">
                             <li class="mb-4 d-flex">
                                 <div class="d-flex w-50 align-items-center me-4">
-                                    <img src="../../assets/img/icons/brands/laravel-logo.png" alt="laravel-logo"
+                                    <img src="{{ asset('assets/img/icons/brands/laravel-logo.png" alt="laravel-logo"
                                         class="me-4" width="35">
                                     <div>
                                         <h6 class="mb-0">Laravel</h6>
@@ -441,7 +441,7 @@
                             </li>
                             <li class="mb-4 d-flex">
                                 <div class="d-flex w-50 align-items-center me-4">
-                                    <img src="../../assets/img/icons/brands/figma-logo.png" alt="figma-logo"
+                                    <img src="{{ asset('assets/img/icons/brands/figma-logo.png" alt="figma-logo"
                                         class="me-4" width="35">
                                     <div>
                                         <h6 class="mb-0">Figma</h6>
@@ -458,7 +458,7 @@
                             </li>
                             <li class="mb-4 d-flex">
                                 <div class="d-flex w-50 align-items-center me-4">
-                                    <img src="../../assets/img/icons/brands/vue-logo.png" alt="vue-logo" class="me-4"
+                                    <img src="{{ asset('assets/img/icons/brands/vue-logo.png" alt="vue-logo" class="me-4"
                                         width="35">
                                     <div>
                                         <h6 class="mb-0">VueJs</h6>
@@ -475,7 +475,7 @@
                             </li>
                             <li class="mb-4 d-flex">
                                 <div class="d-flex w-50 align-items-center me-4">
-                                    <img src="../../assets/img/icons/brands/react-logo.png" alt="react-logo"
+                                    <img src="{{ asset('assets/img/icons/brands/react-logo.png" alt="react-logo"
                                         class="me-4" width="35">
                                     <div>
                                         <h6 class="mb-0">React</h6>
@@ -492,7 +492,7 @@
                             </li>
                             <li class="mb-4 d-flex">
                                 <div class="d-flex w-50 align-items-center me-4">
-                                    <img src="../../assets/img/icons/brands/bootstrap-logo.png" alt="bootstrap-logo"
+                                    <img src="{{ asset('assets/img/icons/brands/bootstrap-logo.png" alt="bootstrap-logo"
                                         class="me-4" width="35">
                                     <div>
                                         <h6 class="mb-0">Bootstrap</h6>
@@ -509,7 +509,7 @@
                             </li>
                             <li class="d-flex">
                                 <div class="d-flex w-50 align-items-center me-4">
-                                    <img src="../../assets/img/icons/brands/sketch-logo.png" alt="sketch-logo"
+                                    <img src="{{ asset('assets/img/icons/brands/sketch-logo.png" alt="sketch-logo"
                                         class="me-4" width="35">
                                     <div>
                                         <h6 class="mb-0">Sketch</h6>
@@ -563,7 +563,7 @@
                                     <td class="pt-5">
                                         <div class="d-flex justify-content-start align-items-center">
                                             <div class="me-4">
-                                                <img src="../../assets/img/icons/payments/visa-img.png" alt="Visa"
+                                                <img src="{{ asset('assets/img/icons/payments/visa-img.png" alt="Visa"
                                                     height="30">
                                             </div>
                                             <div class="d-flex flex-column">
@@ -587,7 +587,7 @@
                                     <td>
                                         <div class="d-flex justify-content-start align-items-center">
                                             <div class="me-4">
-                                                <img src="../../assets/img/icons/payments/master-card-img.png"
+                                                <img src="{{ asset('assets/img/icons/payments/master-card-img.png"
                                                     alt="Visa" height="30">
                                             </div>
                                             <div class="d-flex flex-column">
@@ -611,7 +611,7 @@
                                     <td>
                                         <div class="d-flex justify-content-start align-items-center">
                                             <div class="me-4">
-                                                <img src="../../assets/img/icons/payments/american-express-img.png"
+                                                <img src="{{ asset('assets/img/icons/payments/american-express-img.png"
                                                     alt="Visa" height="30">
                                             </div>
                                             <div class="d-flex flex-column">
@@ -635,7 +635,7 @@
                                     <td>
                                         <div class="d-flex justify-content-start align-items-center">
                                             <div class="me-4">
-                                                <img src="../../assets/img/icons/payments/visa-img.png" alt="Visa"
+                                                <img src="{{ asset('assets/img/icons/payments/visa-img.png" alt="Visa"
                                                     height="30">
                                             </div>
                                             <div class="d-flex flex-column">
@@ -659,7 +659,7 @@
                                     <td>
                                         <div class="d-flex justify-content-start align-items-center">
                                             <div class="me-4">
-                                                <img src="../../assets/img/icons/payments/visa-img.png" alt="Visa"
+                                                <img src="{{ asset('assets/img/icons/payments/visa-img.png" alt="Visa"
                                                     height="30">
                                             </div>
                                             <div class="d-flex flex-column">
@@ -718,7 +718,7 @@
                                     <p class="mb-2">Invoices have been paid to the company</p>
                                     <div class="d-flex align-items-center mb-1">
                                         <div class="badge bg-lighter rounded-3">
-                                            <img src="../../assets/img/icons/misc/pdf.png" alt="img" width="15"
+                                            <img src="{{ asset('assets/img/icons/misc/pdf.png" alt="img" width="15"
                                                 class="me-2">
                                             <span class="h6 mb-0 text-body">invoices.pdf</span>
                                         </div>
@@ -736,7 +736,7 @@
                                     <div class="d-flex justify-content-between flex-wrap gap-2">
                                         <div class="d-flex flex-wrap align-items-center">
                                             <div class="avatar avatar-sm me-2">
-                                                <img src="../../assets/img/avatars/1.png" alt="Avatar"
+                                                <img src="{{ asset('assets/img/avatars/1.png" alt="Avatar"
                                                     class="rounded-circle">
                                             </div>
                                             <div>
@@ -765,19 +765,19 @@
                                                     <li data-bs-toggle="tooltip" data-popup="tooltip-custom"
                                                         data-bs-placement="top" title="Vinnie Mostowy"
                                                         class="avatar pull-up">
-                                                        <img class="rounded-circle" src="../../assets/img/avatars/5.png"
+                                                        <img class="rounded-circle" src="{{ asset('assets/img/avatars/5.png"
                                                             alt="Avatar">
                                                     </li>
                                                     <li data-bs-toggle="tooltip" data-popup="tooltip-custom"
                                                         data-bs-placement="top" title="Allen Rieske"
                                                         class="avatar pull-up">
-                                                        <img class="rounded-circle" src="../../assets/img/avatars/12.png"
+                                                        <img class="rounded-circle" src="{{ asset('assets/img/avatars/12.png"
                                                             alt="Avatar">
                                                     </li>
                                                     <li data-bs-toggle="tooltip" data-popup="tooltip-custom"
                                                         data-bs-placement="top" title="Julee Rossignol"
                                                         class="avatar pull-up">
-                                                        <img class="rounded-circle" src="../../assets/img/avatars/6.png"
+                                                        <img class="rounded-circle" src="{{ asset('assets/img/avatars/6.png"
                                                             alt="Avatar">
                                                     </li>
                                                     <li class="avatar">

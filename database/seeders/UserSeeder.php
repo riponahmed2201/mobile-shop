@@ -2,24 +2,33 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        User::firstOrCreate(
-            ['email' => 'mobile-shop@gmail.com'],
-            [
-                'name' => 'Mobile Shop Admin',
-                'password' => Hash::make('password'),
-            ]
-        );
+        // Admin User
+        User::create([
+            'tenant_id' => 1,
+            'name' => 'Admin User',
+            'email' => 'admin@mobileshop.com',
+            'phone' => '+8801712345678',
+            'role' => 'ADMIN',
+            'password' => 'password', // Will be hashed by User model mutator
+            'is_active' => true,
+        ]);
+
+        // Staff User
+        User::create([
+            'tenant_id' => 1,
+            'name' => 'Staff User',
+            'email' => 'staff@mobileshop.com',
+            'phone' => '+8801787654321',
+            'role' => 'STAFF',
+            'password' => 'password', // Will be hashed by User model mutator
+            'is_active' => true,
+        ]);
     }
 }

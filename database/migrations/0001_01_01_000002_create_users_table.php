@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('phone')->unique()->nullable();
 
             // Role management
-            $table->enum('role', ['OWNER', 'MANAGER', 'SALES', 'TECHNICIAN', 'ACCOUNTANT'])->default('SALES');
+            $table->enum('role', ['OWNER', 'MANAGER', 'SALES', 'TECHNICIAN', 'ACCOUNTANT', 'STAFF', 'ADMIN'])->default('SALES');
 
             // Photo
             $table->string('photo')->nullable();

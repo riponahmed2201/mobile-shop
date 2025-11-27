@@ -8,28 +8,30 @@ use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+// Public Routes
 Route::get('/', function () {
-    return view('auth.login');
+    return redirect()->route('dashboard');
 });
 
+Route::get('/dashboard', function () {
+    return view('dashboard.index');
+})->name('dashboard');
 
-Route::get('login', [LoginController::class, 'showLoginForm']);
-Route::post('login', [LoginController::class, 'login'])->name('login');
+// Inventory Routes (accessible without auth for now)
+Route::resource('brands', App\Http\Controllers\Inventory\BrandController::class);
+Route::resource('categories', App\Http\Controllers\Inventory\CategoryController::class);
+Route::resource('products', App\Http\Controllers\Inventory\ProductController::class);
 
-Route::middleware('user')->group(function () {
+// Auth Routes
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('login', [LoginController::class, 'login']);
+Route::post('logout', [LogoutController::class, 'logout'])->name('logout');
 
-    Route::post('logout', [LogoutController::class, 'logout'])->name('logout');
-
-    // Password
-    Route::get('password-change', [PasswordChangeController::class, 'passwordChange'])->name('passwordChange');
-    Route::put('password/update', [PasswordChangeController::class, 'updatePassword'])->name('password.update');
-
-    // Profile
-    Route::get('profile', [ProfileController::class, 'index'])->name('profile');
-    Route::put('profile/update', [ProfileController::class, 'update'])->name('profile.update');
-
-    // Dashboard
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    Route::resource('customers', CustomerController::class);
-});
+// Protected Routes (commented out for now - uncomment when auth is ready)
+// Route::middleware('auth')->group(function () {
+//     Route::get('password-change', [PasswordChangeController::class, 'passwordChange'])->name('passwordChange');
+//     Route::put('password/update', [PasswordChangeController::class, 'updatePassword'])->name('password.update');
+//     Route::get('profile', [ProfileController::class, 'index'])->name('profile');
+//     Route::put('profile/update', [ProfileController::class, 'update'])->name('profile.update');
+//     Route::resource('customers', CustomerController::class);
+// });
