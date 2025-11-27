@@ -106,7 +106,7 @@
         <div class="layout-container">
             <!-- Menu -->
 
-            @include('partials.sidebar')
+            @include('layouts.sidebar')
 
             <div class="menu-mobile-toggler d-xl-none rounded-1">
                 <a href="javascript:void(0);"
@@ -121,7 +121,7 @@
             <div class="layout-page">
 
                 <!-- Navbar -->
-                @include('partials.navbar')
+                @include('layouts.navbar')
                 <!-- / Navbar -->
 
                 <!-- Content wrapper -->
@@ -132,7 +132,7 @@
                     <!-- / Content -->
 
                     <!-- Footer -->
-                    @include('partials.footer')
+                    @include('layouts.footer')
                     <!-- / Footer -->
 
                     <div class="content-backdrop fade"></div>
@@ -160,7 +160,7 @@
     </div>
 
     <!-- Scripts -->
-    @include('partials.scripts')
+    @include('layouts.scripts')
 
 </body>
 
