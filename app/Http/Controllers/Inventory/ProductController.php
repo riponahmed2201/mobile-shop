@@ -33,11 +33,41 @@ class ProductController extends Controller
                 $query = $this->productService->getProductsQuery();
 
                 return DataTables::of($query)
+                    ->addColumn('product_code', function ($row) {
+                        return $row->product_code ?: '-';
+                    })
                     ->addColumn('brand_name', function ($row) {
                         return $row->brand ? $row->brand->brand_name : '-';
                     })
                     ->addColumn('category_name', function ($row) {
                         return $row->category ? $row->category->category_name : '-';
+                    })
+                    ->addColumn('purchase_price', function ($row) {
+                        return number_format($row->purchase_price, 2);
+                    })
+                    ->addColumn('selling_price', function ($row) {
+                        return number_format($row->selling_price, 2);
+                    })
+                    ->addColumn('mrp', function ($row) {
+                        return $row->mrp ? number_format($row->mrp, 2) : '-';
+                    })
+                    ->addColumn('current_stock', function ($row) {
+                        $badgeClass = $row->current_stock <= $row->min_stock_level ? 'bg-danger' : 'bg-success';
+                        return '<span class="badge ' . $badgeClass . '">' . $row->current_stock . ' ' . $row->unit . '</span>';
+                    })
+                    ->addColumn('product_type', function ($row) {
+                        $badgeClass = match($row->product_type) {
+                            'MOBILE' => 'bg-primary',
+                            'ACCESSORY' => 'bg-info',
+                            'PARTS' => 'bg-warning',
+                            default => 'bg-secondary'
+                        };
+                        return '<span class="badge ' . $badgeClass . '">' . $row->product_type . '</span>';
+                    })
+                    ->addColumn('is_active', function ($row) {
+                        return $row->is_active 
+                            ? '<span class="badge bg-success">Active</span>' 
+                            : '<span class="badge bg-danger">Inactive</span>';
                     })
                     ->addColumn('action', function ($row) {
                         $editUrl = route('products.edit', $row->id);
@@ -60,7 +90,7 @@ class ProductController extends Controller
                             </div>
                         ';
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action', 'current_stock', 'product_type', 'is_active'])
                     ->make(true);
             }
 
@@ -110,8 +140,9 @@ class ProductController extends Controller
     {
         try {
             $validated = $request->validated();
+            $image = $request->hasFile('product_image') ? $request->file('product_image') : null;
 
-            $this->productService->createProduct($validated);
+            $this->productService->createProduct($validated, $image);
 
             return redirect()->route('products.index')
                 ->with('success', 'Product created successfully.');
@@ -157,8 +188,9 @@ class ProductController extends Controller
     {
         try {
             $validated = $request->validated();
+            $image = $request->hasFile('product_image') ? $request->file('product_image') : null;
 
-            $this->productService->updateProduct($product, $validated);
+            $this->productService->updateProduct($product, $validated, $image);
 
             return redirect()->route('products.index')
                 ->with('success', 'Product updated successfully.');

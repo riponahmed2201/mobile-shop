@@ -17,11 +17,16 @@
                     <thead>
                         <tr>
                             <th>No</th>
+                            <th>Code</th>
                             <th>Product Name</th>
                             <th>Brand</th>
                             <th>Category</th>
-                            <th>Price</th>
+                            <th>Type</th>
+                            <th>Purchase Price</th>
+                            <th>Selling Price</th>
+                            <th>MRP</th>
                             <th>Stock</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -54,15 +59,22 @@
               {data: 'id', name: 'id', render: function (data, type, row, meta) {
                   return meta.row + meta.settings._iDisplayStart + 1;
               }},
+              {data: 'product_code', name: 'product_code'},
               {data: 'product_name', name: 'product_name'},
               {data: 'brand_name', name: 'brand_name'},
               {data: 'category_name', name: 'category_name'},
+              {data: 'product_type', name: 'product_type'},
+              {data: 'purchase_price', name: 'purchase_price'},
               {data: 'selling_price', name: 'selling_price'},
+              {data: 'mrp', name: 'mrp'},
               {data: 'current_stock', name: 'current_stock'},
+              {data: 'is_active', name: 'is_active'},
               {data: 'action', name: 'action', orderable: false, searchable: false},
-          ]
+          ],
+          order: [[2, 'asc']], // Sort by product name
+          pageLength: 25,
+          lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]]
       });
     });
 </script>
 @endpush
-

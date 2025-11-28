@@ -6,7 +6,9 @@ use App\Models\Inventory\Product;
 use App\Models\Inventory\Brand;
 use App\Models\Inventory\ProductCategory;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Exception;
 
 class ProductService
@@ -96,7 +98,7 @@ class ProductService
     /**
      * Create a new product
      */
-    public function createProduct(array $data): Product
+    public function createProduct(array $data, ?UploadedFile $image = null): Product
     {
         try {
             $tenantId = $this->getTenantId();
@@ -111,11 +113,35 @@ class ProductService
                 $this->validateCategory($data['category_id'], $tenantId);
             }
 
+            $imagePath = null;
+            if ($image) {
+                $imagePath = $this->storeImage($image);
+            }
+
+            // Handle specifications JSON
+            $specifications = null;
+            if (isset($data['specifications']) && !empty(trim($data['specifications']))) {
+                if (is_string($data['specifications'])) {
+                    $decoded = json_decode($data['specifications'], true);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        $specifications = $decoded;
+                    }
+                } else {
+                    $specifications = $data['specifications'];
+                }
+            }
+
             $product = Product::create(array_merge($data, [
                 'tenant_id' => $tenantId,
                 'product_type' => $data['product_type'] ?? 'MOBILE',
                 'current_stock' => $data['current_stock'] ?? 0,
-                'is_active' => true,
+                'min_stock_level' => $data['min_stock_level'] ?? 5,
+                'reorder_level' => $data['reorder_level'] ?? 10,
+                'unit' => $data['unit'] ?? 'PCS',
+                'warranty_period' => $data['warranty_period'] ?? 0,
+                'product_image_url' => $imagePath,
+                'specifications' => $specifications,
+                'is_active' => isset($data['is_active']) ? (bool)$data['is_active'] : true,
             ]));
 
             Log::info('Product created successfully', [
@@ -137,7 +163,7 @@ class ProductService
     /**
      * Update an existing product
      */
-    public function updateProduct(Product $product, array $data): Product
+    public function updateProduct(Product $product, array $data, ?UploadedFile $image = null): Product
     {
         try {
             // Validate brand belongs to tenant if changed
@@ -150,7 +176,40 @@ class ProductService
                 $this->validateCategory($data['category_id'], $product->tenant_id);
             }
 
-            $product->update($data);
+            $updateData = $data;
+
+            // Handle specifications JSON
+            if (isset($data['specifications'])) {
+                if (!empty(trim($data['specifications']))) {
+                    if (is_string($data['specifications'])) {
+                        $decoded = json_decode($data['specifications'], true);
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            $updateData['specifications'] = $decoded;
+                        } else {
+                            $updateData['specifications'] = null;
+                        }
+                    } else {
+                        $updateData['specifications'] = $data['specifications'];
+                    }
+                } else {
+                    $updateData['specifications'] = null;
+                }
+            }
+
+            // Handle is_active checkbox
+            if (isset($data['is_active'])) {
+                $updateData['is_active'] = (bool)$data['is_active'];
+            }
+
+            if ($image) {
+                // Delete old image if exists
+                if ($product->product_image_url) {
+                    $this->deleteImage($product->product_image_url);
+                }
+                $updateData['product_image_url'] = $this->storeImage($image);
+            }
+
+            $product->update($updateData);
 
             Log::info('Product updated successfully', [
                 'product_id' => $product->id,
@@ -179,6 +238,11 @@ class ProductService
                 throw new Exception('Cannot delete product with existing stock. Please adjust stock to zero first.');
             }
 
+            // Delete image if exists
+            if ($product->product_image_url) {
+                $this->deleteImage($product->product_image_url);
+            }
+
             $productId = $product->id;
             $productName = $product->product_name;
             
@@ -198,6 +262,42 @@ class ProductService
                 'error' => $e->getMessage()
             ]);
             throw $e;
+        }
+    }
+
+    /**
+     * Store product image
+     */
+    private function storeImage(UploadedFile $image): string
+    {
+        try {
+            return $image->store('products', 'public');
+        } catch (Exception $e) {
+            Log::error('Error storing product image', [
+                'file_name' => $image->getClientOriginalName(),
+                'error' => $e->getMessage()
+            ]);
+            throw new Exception('Failed to store product image: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete product image
+     */
+    private function deleteImage(string $imagePath): bool
+    {
+        try {
+            if (Storage::disk('public')->exists($imagePath)) {
+                return Storage::disk('public')->delete($imagePath);
+            }
+            return false;
+        } catch (Exception $e) {
+            Log::error('Error deleting product image', [
+                'image_path' => $imagePath,
+                'error' => $e->getMessage()
+            ]);
+            // Don't throw exception here, just log it
+            return false;
         }
     }
 
