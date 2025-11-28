@@ -18,33 +18,48 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label">Customer</label>
-                        <select name="customer_id" class="form-select">
+                        <select name="customer_id" class="form-select @error('customer_id') is-invalid @enderror">
                             <option value="">Select Customer</option>
                             @foreach($customers as $customer)
-                                <option value="{{ $customer->id }}" {{ $quotation->customer_id == $customer->id ? 'selected' : '' }}>
+                                <option value="{{ $customer->id }}" {{ (old('customer_id') ?? $quotation->customer_id) == $customer->id ? 'selected' : '' }}>
                                     {{ $customer->full_name }} - {{ $customer->mobile_primary }}
                                 </option>
                             @endforeach
                         </select>
+                        @error('customer_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Quotation Date <span class="text-danger">*</span></label>
-                        <input type="date" name="quotation_date" class="form-control" value="{{ $quotation->quotation_date->format('Y-m-d') }}" required>
+                        <input type="date" name="quotation_date" class="form-control @error('quotation_date') is-invalid @enderror" value="{{ old('quotation_date', $quotation->quotation_date->format('Y-m-d')) }}" required>
+                        @error('quotation_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Valid Until</label>
-                        <input type="date" name="valid_until_date" class="form-control" value="{{ $quotation->valid_until_date ? $quotation->valid_until_date->format('Y-m-d') : '' }}">
+                        <input type="date" name="valid_until_date" class="form-control @error('valid_until_date') is-invalid @enderror" value="{{ old('valid_until_date', $quotation->valid_until_date ? $quotation->valid_until_date->format('Y-m-d') : '') }}">
+                        @error('valid_until_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label">Discount Amount</label>
-                        <input type="number" name="discount_amount" class="form-control" step="0.01" value="{{ $quotation->discount_amount }}">
+                        <input type="number" name="discount_amount" class="form-control @error('discount_amount') is-invalid @enderror" step="0.01" value="{{ old('discount_amount', $quotation->discount_amount) }}">
+                        @error('discount_amount')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Tax Amount</label>
-                        <input type="number" name="tax_amount" class="form-control" step="0.01" value="{{ $quotation->tax_amount }}">
+                        <input type="number" name="tax_amount" class="form-control @error('tax_amount') is-invalid @enderror" step="0.01" value="{{ old('tax_amount', $quotation->tax_amount) }}">
+                        @error('tax_amount')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Notes</label>

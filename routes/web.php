@@ -10,79 +10,82 @@ use Illuminate\Support\Facades\Route;
 
 // Public Routes
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard.index');
-})->name('dashboard');
+Route::middleware('user')->group(function () {
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // Inventory Routes (accessible without auth for now)
-Route::resource('brands', App\Http\Controllers\Inventory\BrandController::class);
-Route::resource('categories', App\Http\Controllers\Inventory\CategoryController::class);
-Route::resource('products', App\Http\Controllers\Inventory\ProductController::class);
+Route::resource('brands', BrandController::class);
+Route::resource('categories', CategoryController::class);
+Route::resource('products', ProductController::class);
 
 // Customer Routes (accessible without auth for now)
-Route::resource('customers', App\Http\Controllers\Customer\CustomerController::class);
+Route::resource('customers', CustomerController::class);
 
 // Customer Feedback Routes
 Route::prefix('feedback')->name('feedback.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Customer\CustomerFeedbackController::class, 'index'])->name('index');
-    Route::get('/create', [App\Http\Controllers\Customer\CustomerFeedbackController::class, 'create'])->name('create');
-    Route::post('/', [App\Http\Controllers\Customer\CustomerFeedbackController::class, 'store'])->name('store');
-    Route::get('/{feedback}', [App\Http\Controllers\Customer\CustomerFeedbackController::class, 'show'])->name('show');
-    Route::post('/{feedback}/respond', [App\Http\Controllers\Customer\CustomerFeedbackController::class, 'respond'])->name('respond');
-    Route::delete('/{feedback}', [App\Http\Controllers\Customer\CustomerFeedbackController::class, 'destroy'])->name('destroy');
+    Route::get('/', [CustomerFeedbackController::class, 'index'])->name('index');
+    Route::get('/create', [CustomerFeedbackController::class, 'create'])->name('create');
+    Route::post('/', [CustomerFeedbackController::class, 'store'])->name('store');
+    Route::get('/{feedback}', [CustomerFeedbackController::class, 'show'])->name('show');
+    Route::post('/{feedback}/respond', [CustomerFeedbackController::class, 'respond'])->name('respond');
+    Route::delete('/{feedback}', [CustomerFeedbackController::class, 'destroy'])->name('destroy');
 });
 
 // Loyalty Program Routes
 Route::prefix('loyalty')->name('loyalty.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Customer\LoyaltyTransactionController::class, 'index'])->name('index');
-    Route::get('/create', [App\Http\Controllers\Customer\LoyaltyTransactionController::class, 'create'])->name('create');
-    Route::post('/', [App\Http\Controllers\Customer\LoyaltyTransactionController::class, 'store'])->name('store');
-    Route::delete('/{loyaltyTransaction}', [App\Http\Controllers\Customer\LoyaltyTransactionController::class, 'destroy'])->name('destroy');
+    Route::get('/', [LoyaltyTransactionController::class, 'index'])->name('index');
+    Route::get('/create', [LoyaltyTransactionController::class, 'create'])->name('create');
+    Route::post('/', [LoyaltyTransactionController::class, 'store'])->name('store');
+    Route::delete('/{loyaltyTransaction}', [LoyaltyTransactionController::class, 'destroy'])->name('destroy');
 });
 
 // Customer Groups Routes
 Route::prefix('customer-groups')->name('customer-groups.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Customer\CustomerGroupController::class, 'index'])->name('index');
-    Route::get('/create', [App\Http\Controllers\Customer\CustomerGroupController::class, 'create'])->name('create');
-    Route::post('/', [App\Http\Controllers\Customer\CustomerGroupController::class, 'store'])->name('store');
-    Route::get('/{customerGroup}/edit', [App\Http\Controllers\Customer\CustomerGroupController::class, 'edit'])->name('edit');
-    Route::put('/{customerGroup}', [App\Http\Controllers\Customer\CustomerGroupController::class, 'update'])->name('update');
-    Route::get('/{customerGroup}/members', [App\Http\Controllers\Customer\CustomerGroupController::class, 'members'])->name('members');
-    Route::put('/{customerGroup}/members', [App\Http\Controllers\Customer\CustomerGroupController::class, 'updateMembers'])->name('update-members');
-    Route::delete('/{customerGroup}', [App\Http\Controllers\Customer\CustomerGroupController::class, 'destroy'])->name('destroy');
+    Route::get('/', [CustomerGroupController::class, 'index'])->name('index');
+    Route::get('/create', [CustomerGroupController::class, 'create'])->name('create');
+    Route::post('/', [CustomerGroupController::class, 'store'])->name('store');
+    Route::get('/{customerGroup}/edit', [CustomerGroupController::class, 'edit'])->name('edit');
+    Route::put('/{customerGroup}', [CustomerGroupController::class, 'update'])->name('update');
+    Route::get('/{customerGroup}/members', [CustomerGroupController::class, 'members'])->name('members');
+    Route::put('/{customerGroup}/members', [CustomerGroupController::class, 'updateMembers'])->name('update-members');
+    Route::delete('/{customerGroup}', [CustomerGroupController::class, 'destroy'])->name('destroy');
 });
 
 // Sales & Orders Routes
-Route::resource('sales', App\Http\Controllers\Sales\SaleController::class);
+    Route::get('sales/{sale}/items', [SaleController::class, 'getItems'])->name('sales.items');
+    Route::resource('sales', SaleController::class);
 
 Route::prefix('quotations')->name('quotations.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Sales\QuotationController::class, 'index'])->name('index');
-    Route::get('/create', [App\Http\Controllers\Sales\QuotationController::class, 'create'])->name('create');
-    Route::post('/', [App\Http\Controllers\Sales\QuotationController::class, 'store'])->name('store');
-    Route::get('/{quotation}', [App\Http\Controllers\Sales\QuotationController::class, 'show'])->name('show');
-    Route::get('/{quotation}/edit', [App\Http\Controllers\Sales\QuotationController::class, 'edit'])->name('edit');
-    Route::put('/{quotation}', [App\Http\Controllers\Sales\QuotationController::class, 'update'])->name('update');
-    Route::post('/{quotation}/convert', [App\Http\Controllers\Sales\QuotationController::class, 'convertToSale'])->name('convert');
-    Route::delete('/{quotation}', [App\Http\Controllers\Sales\QuotationController::class, 'destroy'])->name('destroy');
+    Route::get('/', [QuotationController::class, 'index'])->name('index');
+    Route::get('/create', [QuotationController::class, 'create'])->name('create');
+    Route::post('/', [QuotationController::class, 'store'])->name('store');
+    Route::get('/{quotation}', [QuotationController::class, 'show'])->name('show');
+    Route::get('/{quotation}/edit', [QuotationController::class, 'edit'])->name('edit');
+    Route::put('/{quotation}', [QuotationController::class, 'update'])->name('update');
+    Route::post('/{quotation}/convert', [QuotationController::class, 'convertToSale'])->name('convert');
+    Route::delete('/{quotation}', [QuotationController::class, 'destroy'])->name('destroy');
 });
 
 Route::prefix('returns')->name('returns.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Sales\ReturnController::class, 'index'])->name('index');
-    Route::get('/create', [App\Http\Controllers\Sales\ReturnController::class, 'create'])->name('create');
-    Route::post('/', [App\Http\Controllers\Sales\ReturnController::class, 'store'])->name('store');
-    Route::get('/{return}', [App\Http\Controllers\Sales\ReturnController::class, 'show'])->name('show');
-    Route::post('/{return}/approve', [App\Http\Controllers\Sales\ReturnController::class, 'approve'])->name('approve');
-    Route::post('/{return}/reject', [App\Http\Controllers\Sales\ReturnController::class, 'reject'])->name('reject');
-    Route::post('/{return}/process', [App\Http\Controllers\Sales\ReturnController::class, 'process'])->name('process');
+    Route::get('/', [ReturnController::class, 'index'])->name('index');
+    Route::get('/create', [ReturnController::class, 'create'])->name('create');
+    Route::post('/', [ReturnController::class, 'store'])->name('store');
+    Route::get('/{return}', [ReturnController::class, 'show'])->name('show');
+    Route::post('/{return}/approve', [ReturnController::class, 'approve'])->name('approve');
+    Route::post('/{return}/reject', [ReturnController::class, 'reject'])->name('reject');
+    Route::post('/{return}/process', [ReturnController::class, 'process'])->name('process');
 });
 
 Route::prefix('emi')->name('emi.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Sales\EmiController::class, 'index'])->name('index');
-    Route::get('/{emiPlan}', [App\Http\Controllers\Sales\EmiController::class, 'show'])->name('show');
-    Route::post('/{emiPlan}/payment', [App\Http\Controllers\Sales\EmiController::class, 'recordPayment'])->name('record-payment');
+    Route::get('/', [EmiController::class, 'index'])->name('index');
+    Route::get('/{emiPlan}', [EmiController::class, 'show'])->name('show');
+    Route::post('/{emiPlan}/payment', [EmiController::class, 'recordPayment'])->name('record-payment');
+});
+
 });
 
 // Auth Routes

@@ -12,6 +12,7 @@ use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\Sales\StoreEmiPaymentRequest;
 
 class EmiController extends Controller
 {
@@ -109,16 +110,17 @@ class EmiController extends Controller
     /**
      * Record installment payment
      */
-    public function recordPayment(Request $request, EmiPlan $emiPlan): RedirectResponse
+
+
+// ... (inside class)
+
+    /**
+     * Record installment payment
+     */
+    public function recordPayment(StoreEmiPaymentRequest $request, EmiPlan $emiPlan): RedirectResponse
     {
         try {
-            $validated = $request->validate([
-                'installment_id' => 'required|exists:emi_installments,id',
-                'paid_amount' => 'required|numeric|min:0',
-                'payment_date' => 'required|date',
-                'payment_method' => 'required|in:CASH,CARD,BKASH,NAGAD,BANK',
-                'notes' => 'nullable|string',
-            ]);
+            $validated = $request->validated();
 
             $installment = EmiInstallment::findOrFail($validated['installment_id']);
             $this->emiService->recordPayment($installment, $validated);

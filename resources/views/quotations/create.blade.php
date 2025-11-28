@@ -17,20 +17,29 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label">Customer</label>
-                        <select name="customer_id" class="form-select">
+                        <select name="customer_id" class="form-select @error('customer_id') is-invalid @enderror">
                             <option value="">Select Customer</option>
                             @foreach($customers as $customer)
-                                <option value="{{ $customer->id }}">{{ $customer->full_name }} - {{ $customer->mobile_primary }}</option>
+                                <option value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>{{ $customer->full_name }} - {{ $customer->mobile_primary }}</option>
                             @endforeach
                         </select>
+                        @error('customer_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Quotation Date <span class="text-danger">*</span></label>
-                        <input type="date" name="quotation_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                        <input type="date" name="quotation_date" class="form-control @error('quotation_date') is-invalid @enderror" value="{{ old('quotation_date', date('Y-m-d')) }}" required>
+                        @error('quotation_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Valid Until</label>
-                        <input type="date" name="valid_until_date" class="form-control" value="{{ date('Y-m-d', strtotime('+30 days')) }}">
+                        <input type="date" name="valid_until_date" class="form-control @error('valid_until_date') is-invalid @enderror" value="{{ old('valid_until_date', date('Y-m-d', strtotime('+30 days'))) }}">
+                        @error('valid_until_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 

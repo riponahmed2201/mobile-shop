@@ -13,6 +13,8 @@ use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\Sales\StoreSaleRequest;
+use App\Http\Requests\Sales\UpdateSaleRequest;
 
 class SaleController extends Controller
 {
@@ -129,25 +131,17 @@ class SaleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+
+
+// ... (inside class)
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreSaleRequest $request): RedirectResponse
     {
         try {
-            $validated = $request->validate([
-                'customer_id' => 'nullable|exists:customers,id',
-                'sale_date' => 'required|date',
-                'discount_amount' => 'nullable|numeric|min:0',
-                'tax_amount' => 'nullable|numeric|min:0',
-                'paid_amount' => 'required|numeric|min:0',
-                'payment_method' => 'required|in:CASH,CARD,BKASH,NAGAD,BANK,EMI,MIXED',
-                'sale_type' => 'required|in:RETAIL,WHOLESALE,EMI',
-                'notes' => 'nullable|string',
-                'items' => 'required|array|min:1',
-                'items.*.product_id' => 'required|exists:products,id',
-                'items.*.quantity' => 'required|integer|min:1',
-                'items.*.unit_price' => 'required|numeric|min:0',
-                'items.*.total_price' => 'required|numeric|min:0',
-            ]);
-
+            $validated = $request->validated();
             $items = $request->input('items');
             $this->saleService->createSale($validated, $items);
 
@@ -165,44 +159,15 @@ class SaleController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Sale $sale): View
-    {
-        $sale->load(['items.product', 'customer', 'soldBy']);
-        return view('sales.show', compact('sale'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Sale $sale): View
-    {
-        $sale->load('items');
-        $customers = $this->customerService->getCustomersForTenant();
-        $products = $this->productService->getProductsForTenant();
-        
-        return view('sales.edit', compact('sale', 'customers', 'products'));
-    }
+    // ...
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Sale $sale): RedirectResponse
+    public function update(UpdateSaleRequest $request, Sale $sale): RedirectResponse
     {
         try {
-            $validated = $request->validate([
-                'customer_id' => 'nullable|exists:customers,id',
-                'sale_date' => 'required|date',
-                'discount_amount' => 'nullable|numeric|min:0',
-                'tax_amount' => 'nullable|numeric|min:0',
-                'paid_amount' => 'required|numeric|min:0',
-                'payment_method' => 'required|in:CASH,CARD,BKASH,NAGAD,BANK,EMI,MIXED',
-                'notes' => 'nullable|string',
-                'items' => 'required|array|min:1',
-            ]);
-
+            $validated = $request->validated();
             $items = $request->input('items');
             $this->saleService->updateSale($sale, $validated, $items);
 
@@ -239,5 +204,13 @@ class SaleController extends Controller
             return redirect()->route('sales.index')
                 ->with('error', 'Failed to delete sale: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get items for a sale (JSON)
+     */
+    public function getItems(Sale $sale)
+    {
+        return response()->json($sale->items->load('product'));
     }
 }

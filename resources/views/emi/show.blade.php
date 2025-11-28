@@ -62,21 +62,30 @@
                                                         <div class="modal-body">
                                                             <div class="mb-3">
                                                                 <label class="form-label">Paid Amount <span class="text-danger">*</span></label>
-                                                                <input type="number" name="paid_amount" class="form-control" step="0.01" value="{{ $installment->amount }}" required>
+                                                                <input type="number" name="paid_amount" class="form-control @error('paid_amount') is-invalid @enderror" step="0.01" value="{{ old('paid_amount', $installment->amount) }}" required>
+                                                                @error('paid_amount')
+                                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                                @enderror
                                                             </div>
                                                             <div class="mb-3">
                                                                 <label class="form-label">Payment Date <span class="text-danger">*</span></label>
-                                                                <input type="date" name="payment_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                                                                <input type="date" name="payment_date" class="form-control @error('payment_date') is-invalid @enderror" value="{{ old('payment_date', date('Y-m-d')) }}" required>
+                                                                @error('payment_date')
+                                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                                @enderror
                                                             </div>
                                                             <div class="mb-3">
                                                                 <label class="form-label">Payment Method <span class="text-danger">*</span></label>
-                                                                <select name="payment_method" class="form-select" required>
-                                                                    <option value="CASH">Cash</option>
-                                                                    <option value="CARD">Card</option>
-                                                                    <option value="BKASH">bKash</option>
-                                                                    <option value="NAGAD">Nagad</option>
-                                                                    <option value="BANK">Bank Transfer</option>
+                                                                <select name="payment_method" class="form-select @error('payment_method') is-invalid @enderror" required>
+                                                                    <option value="CASH" {{ old('payment_method') == 'CASH' ? 'selected' : '' }}>Cash</option>
+                                                                    <option value="CARD" {{ old('payment_method') == 'CARD' ? 'selected' : '' }}>Card</option>
+                                                                    <option value="BKASH" {{ old('payment_method') == 'BKASH' ? 'selected' : '' }}>bKash</option>
+                                                                    <option value="NAGAD" {{ old('payment_method') == 'NAGAD' ? 'selected' : '' }}>Nagad</option>
+                                                                    <option value="BANK" {{ old('payment_method') == 'BANK' ? 'selected' : '' }}>Bank Transfer</option>
                                                                 </select>
+                                                                @error('payment_method')
+                                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                                @enderror
                                                             </div>
                                                             <div class="mb-3">
                                                                 <label class="form-label">Notes</label>

@@ -11,6 +11,7 @@ use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\Sales\StoreReturnRequest;
 
 class ReturnController extends Controller
 {
@@ -125,26 +126,24 @@ class ReturnController extends Controller
      */
     public function create(): View
     {
-        return view('returns.create');
+        $sales = \App\Models\Sales\Sale::with('customer')->latest()->take(50)->get(); // Limit to last 50 sales for performance
+        return view('returns.create', compact('sales'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+
+
+// ... (inside class)
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreReturnRequest $request): RedirectResponse
     {
         try {
-            $validated = $request->validate([
-                'sale_id' => 'required|exists:sales,id',
-                'customer_id' => 'required|exists:customers,id',
-                'return_date' => 'required|date',
-                'return_reason' => 'required|string',
-                'return_type' => 'required|in:REFUND,EXCHANGE,STORE_CREDIT',
-                'refund_amount' => 'nullable|numeric|min:0',
-                'restocking_fee' => 'nullable|numeric|min:0',
-                'items' => 'required|array|min:1',
-            ]);
-
+            $validated = $request->validated();
             $items = $request->input('items');
             $this->returnService->createReturn($validated, $items);
 

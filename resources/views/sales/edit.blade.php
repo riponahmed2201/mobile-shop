@@ -18,47 +18,65 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label">Customer</label>
-                        <select name="customer_id" class="form-select">
+                        <select name="customer_id" class="form-select @error('customer_id') is-invalid @enderror">
                             <option value="">Walk-in Customer</option>
                             @foreach($customers as $customer)
-                                <option value="{{ $customer->id }}" {{ $sale->customer_id == $customer->id ? 'selected' : '' }}>
+                                <option value="{{ $customer->id }}" {{ (old('customer_id') ?? $sale->customer_id) == $customer->id ? 'selected' : '' }}>
                                     {{ $customer->full_name }} - {{ $customer->mobile_primary }}
                                 </option>
                             @endforeach
                         </select>
+                        @error('customer_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Sale Date <span class="text-danger">*</span></label>
-                        <input type="date" name="sale_date" class="form-control" value="{{ $sale->sale_date->format('Y-m-d') }}" required>
+                        <input type="date" name="sale_date" class="form-control @error('sale_date') is-invalid @enderror" value="{{ old('sale_date', $sale->sale_date->format('Y-m-d')) }}" required>
+                        @error('sale_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label">Payment Method <span class="text-danger">*</span></label>
-                        <select name="payment_method" class="form-select" required>
-                            <option value="CASH" {{ $sale->payment_method == 'CASH' ? 'selected' : '' }}>Cash</option>
-                            <option value="CARD" {{ $sale->payment_method == 'CARD' ? 'selected' : '' }}>Card</option>
-                            <option value="BKASH" {{ $sale->payment_method == 'BKASH' ? 'selected' : '' }}>bKash</option>
-                            <option value="NAGAD" {{ $sale->payment_method == 'NAGAD' ? 'selected' : '' }}>Nagad</option>
-                            <option value="BANK" {{ $sale->payment_method == 'BANK' ? 'selected' : '' }}>Bank Transfer</option>
-                            <option value="MIXED" {{ $sale->payment_method == 'MIXED' ? 'selected' : '' }}>Mixed</option>
+                        <select name="payment_method" class="form-select @error('payment_method') is-invalid @enderror" required>
+                            <option value="CASH" {{ (old('payment_method') ?? $sale->payment_method) == 'CASH' ? 'selected' : '' }}>Cash</option>
+                            <option value="CARD" {{ (old('payment_method') ?? $sale->payment_method) == 'CARD' ? 'selected' : '' }}>Card</option>
+                            <option value="BKASH" {{ (old('payment_method') ?? $sale->payment_method) == 'BKASH' ? 'selected' : '' }}>bKash</option>
+                            <option value="NAGAD" {{ (old('payment_method') ?? $sale->payment_method) == 'NAGAD' ? 'selected' : '' }}>Nagad</option>
+                            <option value="BANK" {{ (old('payment_method') ?? $sale->payment_method) == 'BANK' ? 'selected' : '' }}>Bank Transfer</option>
+                            <option value="MIXED" {{ (old('payment_method') ?? $sale->payment_method) == 'MIXED' ? 'selected' : '' }}>Mixed</option>
                         </select>
+                        @error('payment_method')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Paid Amount <span class="text-danger">*</span></label>
-                        <input type="number" name="paid_amount" class="form-control" step="0.01" value="{{ $sale->paid_amount }}" required>
+                        <input type="number" name="paid_amount" class="form-control @error('paid_amount') is-invalid @enderror" step="0.01" value="{{ old('paid_amount', $sale->paid_amount) }}" required>
+                        @error('paid_amount')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label">Discount Amount</label>
-                        <input type="number" name="discount_amount" class="form-control" step="0.01" value="{{ $sale->discount_amount }}">
+                        <input type="number" name="discount_amount" class="form-control @error('discount_amount') is-invalid @enderror" step="0.01" value="{{ old('discount_amount', $sale->discount_amount) }}">
+                        @error('discount_amount')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Tax Amount</label>
-                        <input type="number" name="tax_amount" class="form-control" step="0.01" value="{{ $sale->tax_amount }}">
+                        <input type="number" name="tax_amount" class="form-control @error('tax_amount') is-invalid @enderror" step="0.01" value="{{ old('tax_amount', $sale->tax_amount) }}">
+                        @error('tax_amount')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Notes</label>

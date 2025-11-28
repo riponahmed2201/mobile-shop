@@ -13,6 +13,8 @@ use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\Sales\StoreQuotationRequest;
+use App\Http\Requests\Sales\UpdateQuotationRequest;
 
 class QuotationController extends Controller
 {
@@ -128,20 +130,10 @@ class QuotationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreQuotationRequest $request): RedirectResponse
     {
         try {
-            $validated = $request->validate([
-                'customer_id' => 'nullable|exists:customers,id',
-                'quotation_date' => 'required|date',
-                'valid_until_date' => 'nullable|date|after:quotation_date',
-                'discount_amount' => 'nullable|numeric|min:0',
-                'tax_amount' => 'nullable|numeric|min:0',
-                'notes' => 'nullable|string',
-                'terms_conditions' => 'nullable|string',
-                'items' => 'required|array|min:1',
-            ]);
-
+            $validated = $request->validated();
             $items = $request->input('items');
             $this->quotationService->createQuotation($validated, $items);
 
@@ -163,7 +155,7 @@ class QuotationController extends Controller
      */
     public function show(Quotation $quotation): View
     {
-        $quotation->load(['items.product', 'customer', 'creator']);
+        $quotation->load(['items.product', 'customer', 'creator', 'convertedSale']);
         return view('quotations.show', compact('quotation'));
     }
 
@@ -172,9 +164,9 @@ class QuotationController extends Controller
      */
     public function edit(Quotation $quotation): View
     {
-        $quotation->load('items');
         $customers = $this->customerService->getCustomersForTenant();
         $products = $this->productService->getProductsForTenant();
+        $quotation->load(['items']);
         
         return view('quotations.edit', compact('quotation', 'customers', 'products'));
     }
@@ -182,19 +174,10 @@ class QuotationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Quotation $quotation): RedirectResponse
+    public function update(UpdateQuotationRequest $request, Quotation $quotation): RedirectResponse
     {
         try {
-            $validated = $request->validate([
-                'customer_id' => 'nullable|exists:customers,id',
-                'quotation_date' => 'required|date',
-                'valid_until_date' => 'nullable|date',
-                'discount_amount' => 'nullable|numeric|min:0',
-                'tax_amount' => 'nullable|numeric|min:0',
-                'notes' => 'nullable|string',
-                'items' => 'required|array|min:1',
-            ]);
-
+            $validated = $request->validated();
             $items = $request->input('items');
             $this->quotationService->updateQuotation($quotation, $validated, $items);
 
