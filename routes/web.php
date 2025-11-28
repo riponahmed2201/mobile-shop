@@ -4,14 +4,24 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\Customer\CustomerController;
+use App\Http\Controllers\Customer\CustomerFeedbackController;
+use App\Http\Controllers\Customer\CustomerGroupController;
+use App\Http\Controllers\Customer\LoyaltyTransactionController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Inventory\BrandController;
+use App\Http\Controllers\Inventory\CategoryController;
+use App\Http\Controllers\Inventory\ProductController;
 use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\Sales\EmiController;
+use App\Http\Controllers\Sales\QuotationController;
+use App\Http\Controllers\Sales\ReturnController;
+use App\Http\Controllers\Sales\SaleController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\LandingPageController;
+
 // Public Routes
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 
 Route::middleware('user')->group(function () {
 
