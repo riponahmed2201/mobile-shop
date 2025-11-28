@@ -70,19 +70,19 @@
         </li>
 
         <!-- Customers -->
-        <li class="menu-item">
+        <li class="menu-item {{ request()->routeIs('customers.*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ti tabler-users"></i>
                 <div data-i18n="Customers">Customers</div>
             </a>
             <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="customers-list.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('customers.index') ? 'active' : '' }}">
+                    <a href="{{ route('customers.index') }}" class="menu-link">
                         <div data-i18n="All Customers">All Customers</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="customers-new.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('customers.create') ? 'active' : '' }}">
+                    <a href="{{ route('customers.create') }}" class="menu-link">
                         <div data-i18n="Add New Customer">Add New Customer</div>
                     </a>
                 </li>
@@ -117,7 +117,7 @@
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="inventory-products-new.html" class="menu-link">
+                    <a href="{{ route('products.create') }}" class="menu-link">
                         <div data-i18n="Add Product">Add Product</div>
                     </a>
                 </li>

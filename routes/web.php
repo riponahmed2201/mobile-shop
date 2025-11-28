@@ -22,6 +22,9 @@ Route::resource('brands', App\Http\Controllers\Inventory\BrandController::class)
 Route::resource('categories', App\Http\Controllers\Inventory\CategoryController::class);
 Route::resource('products', App\Http\Controllers\Inventory\ProductController::class);
 
+// Customer Routes (accessible without auth for now)
+Route::resource('customers', App\Http\Controllers\Customer\CustomerController::class);
+
 // Auth Routes
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login']);
