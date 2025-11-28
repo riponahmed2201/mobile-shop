@@ -56,5 +56,11 @@ class Customer extends Model
     {
         return $this->hasMany(CustomerTag::class);
     }
+
+    public function groups()
+    {
+        return $this->belongsToMany(CustomerGroup::class, 'customer_group_members')
+            ->withTimestamps();
+    }
 }
 

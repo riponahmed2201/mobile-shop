@@ -86,18 +86,18 @@
                         <div data-i18n="Add New Customer">Add New Customer</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="customers-groups.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('customer-groups.*') ? 'active' : '' }}">
+                    <a href="{{ route('customer-groups.index') }}" class="menu-link">
                         <div data-i18n="Customer Groups">Customer Groups</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="customers-loyalty.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('loyalty.*') ? 'active' : '' }}">
+                    <a href="{{ route('loyalty.index') }}" class="menu-link">
                         <div data-i18n="Loyalty Program">Loyalty Program</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="customers-feedback.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('feedback.*') ? 'active' : '' }}">
+                    <a href="{{ route('feedback.index') }}" class="menu-link">
                         <div data-i18n="Customer Feedback">Customer Feedback</div>
                     </a>
                 </li>
