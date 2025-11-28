@@ -34,36 +34,35 @@
         </li>
 
         <!-- Sales & Orders -->
-        <li class="menu-item">
+        <li class="menu-item {{ request()->routeIs('sales.*') || request()->routeIs('quotations.*') || request()->routeIs('returns.*') || request()->routeIs('emi.*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ti tabler-shopping-cart"></i>
                 <div data-i18n="Sales & Orders">Sales & Orders</div>
             </a>
             <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="sales-new.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('sales.create') ? 'active' : '' }}">
+                    <a href="{{ route('sales.create') }}" class="menu-link">
                         <div data-i18n="New Sale / POS">New Sale / POS</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="sales-list.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('sales.index') ? 'active' : '' }}">
+                    <a href="{{ route('sales.index') }}" class="menu-link">
                         <div data-i18n="All Sales">All Sales</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="sales-quotations.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('quotations.*') ? 'active' : '' }}">
+                    <a href="{{ route('quotations.index') }}" class="menu-link">
                         <div data-i18n="Quotations">Quotations</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="sales-returns.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('returns.*') ? 'active' : '' }}">
+                    <a href="{{ route('returns.index') }}" class="menu-link">
                         <div data-i18n="Returns & Refunds">Returns & Refunds</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="sales-emi.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('emi.*') ? 'active' : '' }}">
+                    <a href="{{ route('emi.index') }}" class="menu-link">
                         <div data-i18n="EMI/Installments">EMI/Installments</div>
-                        <div class="badge text-bg-warning rounded-pill ms-auto">5</div>
                     </a>
                 </li>
             </ul>
@@ -511,7 +510,7 @@
 
 <!-- Quick Action Button (Floating) -->
 <div class="buy-now">
-    <a href="sales-new.html" class="btn btn-danger btn-buy-now">
+    <a href="{{ route('sales.create') }}" class="btn btn-danger btn-buy-now">
         <i class="ti ti-plus"></i> New Sale
     </a>
 </div>

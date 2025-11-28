@@ -55,6 +55,36 @@ Route::prefix('customer-groups')->name('customer-groups.')->group(function () {
     Route::delete('/{customerGroup}', [App\Http\Controllers\Customer\CustomerGroupController::class, 'destroy'])->name('destroy');
 });
 
+// Sales & Orders Routes
+Route::resource('sales', App\Http\Controllers\Sales\SaleController::class);
+
+Route::prefix('quotations')->name('quotations.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Sales\QuotationController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\Sales\QuotationController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\Sales\QuotationController::class, 'store'])->name('store');
+    Route::get('/{quotation}', [App\Http\Controllers\Sales\QuotationController::class, 'show'])->name('show');
+    Route::get('/{quotation}/edit', [App\Http\Controllers\Sales\QuotationController::class, 'edit'])->name('edit');
+    Route::put('/{quotation}', [App\Http\Controllers\Sales\QuotationController::class, 'update'])->name('update');
+    Route::post('/{quotation}/convert', [App\Http\Controllers\Sales\QuotationController::class, 'convertToSale'])->name('convert');
+    Route::delete('/{quotation}', [App\Http\Controllers\Sales\QuotationController::class, 'destroy'])->name('destroy');
+});
+
+Route::prefix('returns')->name('returns.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Sales\ReturnController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\Sales\ReturnController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\Sales\ReturnController::class, 'store'])->name('store');
+    Route::get('/{return}', [App\Http\Controllers\Sales\ReturnController::class, 'show'])->name('show');
+    Route::post('/{return}/approve', [App\Http\Controllers\Sales\ReturnController::class, 'approve'])->name('approve');
+    Route::post('/{return}/reject', [App\Http\Controllers\Sales\ReturnController::class, 'reject'])->name('reject');
+    Route::post('/{return}/process', [App\Http\Controllers\Sales\ReturnController::class, 'process'])->name('process');
+});
+
+Route::prefix('emi')->name('emi.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Sales\EmiController::class, 'index'])->name('index');
+    Route::get('/{emiPlan}', [App\Http\Controllers\Sales\EmiController::class, 'show'])->name('show');
+    Route::post('/{emiPlan}/payment', [App\Http\Controllers\Sales\EmiController::class, 'recordPayment'])->name('record-payment');
+});
+
 // Auth Routes
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login']);
