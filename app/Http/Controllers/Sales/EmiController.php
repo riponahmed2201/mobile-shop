@@ -67,11 +67,11 @@ class EmiController extends Controller
                     })
                     ->addColumn('action', function ($row) {
                         $showUrl = route('emi.show', $row->id);
-                        
+
                         return '
                             <div class="dropdown">
                                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                    <i class="ti ti-dots-vertical"></i>
+                                    <i class="ti tabler-dots-vertical"></i>
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="'.$showUrl.'"><i class="ti ti-eye me-1"></i> View Details</a>

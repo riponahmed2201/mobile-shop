@@ -31,15 +31,31 @@
     <!-- Page CSS -->
     <style>
         .hero-section {
-            padding: 8rem 0 4rem;
-            background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+            padding: 10rem 0 6rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             position: relative;
             overflow: hidden;
+            color: white;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="50" r="2" fill="white" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
         }
         .hero-img {
             max-width: 100%;
             height: auto;
             animation: float 6s ease-in-out infinite;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.1));
         }
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -47,25 +63,66 @@
             100% { transform: translateY(0px); }
         }
         .feature-icon {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 1.5rem;
-            font-size: 1.75rem;
+            font-size: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
         .pricing-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            border-radius: 16px;
         }
         .pricing-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
         .navbar-landing {
             background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
+        }
+        .stats-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .testimonial-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 1rem;
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        .section-py {
+            padding: 5rem 0;
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+            border-radius: 16px;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
     </style>
 
@@ -165,107 +222,143 @@
     <section id="landingHero" class="hero-section landing-hero position-relative">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-6 text-center text-lg-start">
-                    <h1 class="display-4 fw-bold mb-4 text-primary">Manage Your Mobile Shop <br> Like a Pro</h1>
-                    <p class="lead mb-4 text-muted">
-                        The all-in-one SaaS solution for mobile repair shops and retailers. 
-                        Track inventory, manage repairs, process sales, and grow your business with our multi-tenant platform.
-                    </p>
-                    <div class="d-flex justify-content-center justify-content-lg-start gap-3">
-                        <a href="{{ route('login') }}" class="btn btn-primary btn-lg">Get Started Free</a>
-                        <a href="#landingFeatures" class="btn btn-outline-secondary btn-lg">Learn More</a>
+                <div class="col-lg-6 text-center text-lg-start hero-content">
+                    <div class="mb-4">
+                        <span class="badge bg-white bg-opacity-20 text-white px-3 py-2 mb-3">🚀 #1 Mobile Shop Management Platform</span>
                     </div>
-                    <div class="mt-5">
-                        <p class="small text-muted mb-2">Trusted by 500+ shops worldwide</p>
-                        <div class="d-flex justify-content-center justify-content-lg-start gap-3 opacity-50">
-                            <i class="ti ti-brand-apple fs-3"></i>
-                            <i class="ti ti-brand-android fs-3"></i>
-                            <i class="ti ti-brand-samsung fs-3"></i>
-                            <i class="ti ti-brand-windows fs-3"></i>
+                    <h1 class="display-3 fw-bold mb-4">Transform Your Mobile Repair Business</h1>
+                    <p class="lead mb-5 fs-5">
+                        Streamline operations, boost revenue, and delight customers with our all-in-one SaaS platform.
+                        From repair tracking to smart POS, we've got everything covered.
+                    </p>
+                    <div class="d-flex justify-content-center justify-content-lg-start gap-3 mb-4">
+                        <a href="{{ route('login') }}" class="btn btn-gradient btn-lg px-4 py-3">Start Free Trial</a>
+                        <a href="#landingFeatures" class="btn btn-outline-light btn-lg px-4 py-3">Watch Demo</a>
+                    </div>
+                    <div class="row text-center text-lg-start">
+                        <div class="col-6 col-lg-3 mb-3">
+                            <div class="stat-number">500+</div>
+                            <small class="text-white-50">Happy Shops</small>
+                        </div>
+                        <div class="col-6 col-lg-3 mb-3">
+                            <div class="stat-number">50K+</div>
+                            <small class="text-white-50">Repairs Managed</small>
+                        </div>
+                        <div class="col-6 col-lg-3 mb-3">
+                            <div class="stat-number">99.9%</div>
+                            <small class="text-white-50">Uptime</small>
+                        </div>
+                        <div class="col-6 col-lg-3 mb-3">
+                            <div class="stat-number">24/7</div>
+                            <small class="text-white-50">Support</small>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-6 mt-5 mt-lg-0 text-center">
-                    <!-- Using a generic illustration from the template assets -->
-                    <img src="{{ asset('assets/img/illustrations/girl-with-laptop-light.png') }}" alt="Mobile Shop Management" class="hero-img" data-app-light-img="illustrations/girl-with-laptop-light.png" data-app-dark-img="illustrations/girl-with-laptop-dark.png">
+                    <img src="{{ asset('assets/img/illustrations/girl-with-laptop-light.png') }}" alt="Mobile Shop Management Dashboard" class="hero-img" data-app-light-img="illustrations/girl-with-laptop-light.png" data-app-dark-img="illustrations/girl-with-laptop-dark.png">
                 </div>
             </div>
         </div>
     </section>
     <!-- Hero: End -->
 
+    <!-- Stats: Start -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-number">500+</div>
+                    <p class="mb-0">Active Shops</p>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-number">50K+</div>
+                    <p class="mb-0">Repairs Completed</p>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-number">98%</div>
+                    <p class="mb-0">Customer Satisfaction</p>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-number">$2M+</div>
+                    <p class="mb-0">Revenue Generated</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Stats: End -->
+
     <!-- Features: Start -->
-    <section id="landingFeatures" class="section-py landing-features bg-body">
+    <section id="landingFeatures" class="section-py landing-features bg-light">
         <div class="container">
             <div class="text-center mb-5">
-                <span class="badge bg-label-primary">Features</span>
-                <h2 class="h3 mt-2">Everything You Need to Run Your Shop</h2>
-                <p class="text-muted">Powerful tools designed specifically for the mobile repair and retail industry.</p>
+                <span class="badge bg-primary">✨ Powerful Features</span>
+                <h2 class="display-5 fw-bold mt-3 mb-3">Everything You Need to Succeed</h2>
+                <p class="lead text-muted">Transform your mobile repair business with our comprehensive suite of tools designed for modern shop owners.</p>
             </div>
             <div class="row g-4">
                 <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center">
-                            <div class="feature-icon bg-label-primary mx-auto">
+                    <div class="card feature-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-primary bg-gradient text-white mx-auto">
                                 <i class="ti ti-device-mobile"></i>
                             </div>
-                            <h5 class="card-title">Repair Tracking</h5>
-                            <p class="card-text text-muted">Track repair jobs from intake to completion. Keep customers updated with automated SMS and email notifications.</p>
+                            <h5 class="card-title fw-bold">Smart Repair Tracking</h5>
+                            <p class="card-text text-muted">Complete repair lifecycle management with automated customer notifications, status updates, and detailed work logs.</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center">
-                            <div class="feature-icon bg-label-success mx-auto">
+                    <div class="card feature-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-success bg-gradient text-white mx-auto">
                                 <i class="ti ti-shopping-cart"></i>
                             </div>
-                            <h5 class="card-title">Smart POS</h5>
-                            <p class="card-text text-muted">Fast and easy Point of Sale system. Manage sales, returns, and exchanges with barcode scanning support.</p>
+                            <h5 class="card-title fw-bold">Lightning-Fast POS</h5>
+                            <p class="card-text text-muted">Streamlined checkout process with barcode scanning, inventory sync, and seamless payment processing.</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center">
-                            <div class="feature-icon bg-label-warning mx-auto">
+                    <div class="card feature-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-warning bg-gradient text-white mx-auto">
                                 <i class="ti ti-box"></i>
                             </div>
-                            <h5 class="card-title">Inventory Management</h5>
-                            <p class="card-text text-muted">Real-time stock tracking. Low stock alerts, supplier management, and automated reordering.</p>
+                            <h5 class="card-title fw-bold">Intelligent Inventory</h5>
+                            <p class="card-text text-muted">Real-time stock management with low-stock alerts, supplier integration, and automated reorder suggestions.</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center">
-                            <div class="feature-icon bg-label-info mx-auto">
+                    <div class="card feature-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-info bg-gradient text-white mx-auto">
                                 <i class="ti ti-users"></i>
                             </div>
-                            <h5 class="card-title">CRM & Loyalty</h5>
-                            <p class="card-text text-muted">Build customer relationships. Track purchase history and reward loyal customers with points.</p>
+                            <h5 class="card-title fw-bold">Customer Relationship Management</h5>
+                            <p class="card-text text-muted">Build lasting customer relationships with purchase history tracking, loyalty programs, and personalized marketing.</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center">
-                            <div class="feature-icon bg-label-danger mx-auto">
+                    <div class="card feature-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-danger bg-gradient text-white mx-auto">
                                 <i class="ti ti-chart-bar"></i>
                             </div>
-                            <h5 class="card-title">Advanced Reporting</h5>
-                            <p class="card-text text-muted">Gain insights into your business. Sales reports, profit/loss analysis, and employee performance tracking.</p>
+                            <h5 class="card-title fw-bold">Business Intelligence</h5>
+                            <p class="card-text text-muted">Comprehensive analytics dashboard with profit/loss reports, performance metrics, and actionable insights.</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center">
-                            <div class="feature-icon bg-label-secondary mx-auto">
+                    <div class="card feature-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon bg-secondary bg-gradient text-white mx-auto">
                                 <i class="ti ti-cloud"></i>
                             </div>
-                            <h5 class="card-title">Multi-Tenant Cloud</h5>
-                            <p class="card-text text-muted">Secure cloud hosting. Access your shop data from anywhere, anytime. Safe, reliable, and backed up.</p>
+                            <h5 class="card-title fw-bold">Cloud-Powered Platform</h5>
+                            <p class="card-text text-muted">Secure, scalable cloud infrastructure with 99.9% uptime, automatic backups, and multi-device synchronization.</p>
                         </div>
                     </div>
                 </div>
@@ -274,94 +367,208 @@
     </section>
     <!-- Features: End -->
 
-    <!-- Pricing: Start -->
-    <section id="landingPricing" class="section-py landing-pricing">
+    <!-- Testimonials: Start -->
+    <section class="py-5 bg-white">
         <div class="container">
             <div class="text-center mb-5">
-                <span class="badge bg-label-primary">Pricing Plans</span>
-                <h2 class="h3 mt-2">Choose the Right Plan for You</h2>
-                <p class="text-muted">Flexible pricing options to scale with your business needs.</p>
+                <h2 class="display-5 fw-bold mb-3">Trusted by Shop Owners Worldwide</h2>
+                <p class="lead text-muted">See what our customers say about transforming their businesses</p>
             </div>
-            <div class="row g-4 justify-content-center">
-                <!-- Starter -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="card pricing-card h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="text-center mb-4">
-                                <h4 class="mb-0">Starter</h4>
-                                <p class="text-muted">For small repair shops</p>
-                                <div class="d-flex justify-content-center align-items-center">
-                                    <sup class="h5 pricing-currency mt-3 mb-0 me-1">$</sup>
-                                    <h1 class="display-3 mb-0 text-primary">29</h1>
-                                    <sub class="h5 pricing-duration mt-auto mb-2">/mo</sub>
-                                </div>
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="testimonial-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar avatar-lg me-3">
+                                <span class="avatar-initial rounded-circle bg-primary">RS</span>
                             </div>
-                            <ul class="list-unstyled mb-4">
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> 1 User Account</li>
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> Up to 100 Repairs/mo</li>
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> Basic Inventory</li>
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> Email Support</li>
-                                <li class="mb-2 text-muted"><i class="ti ti-x me-2"></i> Multi-store Support</li>
-                            </ul>
-                            <a href="{{ route('login') }}" class="btn btn-outline-primary w-100">Get Started</a>
+                            <div>
+                                <h6 class="mb-0">Rahul Sharma</h6>
+                                <small class="text-muted">MobileFix Delhi</small>
+                            </div>
+                        </div>
+                        <p class="mb-0">"MobileShop SaaS has revolutionized our repair shop. We've increased efficiency by 40% and customer satisfaction is at an all-time high. The automated notifications keep our customers informed throughout the repair process."</p>
+                        <div class="mt-3">
+                            <i class="ti ti-star-filled text-warning"></i>
+                            <i class="ti ti-star-filled text-warning"></i>
+                            <i class="ti ti-star-filled text-warning"></i>
+                            <i class="ti ti-star-filled text-warning"></i>
+                            <i class="ti ti-star-filled text-warning"></i>
                         </div>
                     </div>
                 </div>
-                <!-- Pro -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="card pricing-card h-100 border-primary border-2 shadow">
-                        <div class="card-header bg-transparent border-0 text-center pt-4">
-                            <span class="badge bg-primary">Most Popular</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="text-center mb-4">
-                                <h4 class="mb-0">Professional</h4>
-                                <p class="text-muted">For growing businesses</p>
-                                <div class="d-flex justify-content-center align-items-center">
-                                    <sup class="h5 pricing-currency mt-3 mb-0 me-1">$</sup>
-                                    <h1 class="display-3 mb-0 text-primary">79</h1>
-                                    <sub class="h5 pricing-duration mt-auto mb-2">/mo</sub>
-                                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="testimonial-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar avatar-lg me-3">
+                                <span class="avatar-initial rounded-circle bg-success">AK</span>
                             </div>
-                            <ul class="list-unstyled mb-4">
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> 5 User Accounts</li>
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> Unlimited Repairs</li>
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> Advanced Inventory</li>
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> Priority Support</li>
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> SMS Notifications</li>
-                            </ul>
-                            <a href="{{ route('login') }}" class="btn btn-primary w-100">Get Started</a>
+                            <div>
+                                <h6 class="mb-0">Anjali Kumar</h6>
+                                <small class="text-muted">TechHub Mumbai</small>
+                            </div>
+                        </div>
+                        <p class="mb-0">"The inventory management system is a game-changer. We never run out of stock anymore, and the POS integration makes checkout lightning fast. Our revenue has grown 35% since implementing MobileShop SaaS."</p>
+                        <div class="mt-3">
+                            <i class="ti ti-star-filled text-warning"></i>
+                            <i class="ti ti-star-filled text-warning"></i>
+                            <i class="ti ti-star-filled text-warning"></i>
+                            <i class="ti ti-star-filled text-warning"></i>
+                            <i class="ti ti-star-filled text-warning"></i>
                         </div>
                     </div>
                 </div>
-                <!-- Enterprise -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="card pricing-card h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="text-center mb-4">
-                                <h4 class="mb-0">Enterprise</h4>
-                                <p class="text-muted">For large chains</p>
-                                <div class="d-flex justify-content-center align-items-center">
-                                    <sup class="h5 pricing-currency mt-3 mb-0 me-1">$</sup>
-                                    <h1 class="display-3 mb-0 text-primary">199</h1>
-                                    <sub class="h5 pricing-duration mt-auto mb-2">/mo</sub>
-                                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="testimonial-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar avatar-lg me-3">
+                                <span class="avatar-initial rounded-circle bg-info">VP</span>
                             </div>
-                            <ul class="list-unstyled mb-4">
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> Unlimited Users</li>
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> Multi-store Management</li>
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> API Access</li>
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> Dedicated Manager</li>
-                                <li class="mb-2"><i class="ti ti-check text-success me-2"></i> White Labeling</li>
-                            </ul>
-                            <a href="{{ route('login') }}" class="btn btn-outline-primary w-100">Contact Sales</a>
+                            <div>
+                                <h6 class="mb-0">Vikram Patel</h6>
+                                <small class="text-muted">GadgetPro Bangalore</small>
+                            </div>
+                        </div>
+                        <p class="mb-0">"Outstanding customer support and intuitive interface. The reporting features help us make data-driven decisions. MobileShop SaaS has helped us scale from 1 to 3 locations seamlessly."</p>
+                        <div class="mt-3">
+                            <i class="ti ti-star-filled text-warning"></i>
+                            <i class="ti ti-star-filled text-warning"></i>
+                            <i class="ti ti-star-filled text-warning"></i>
+                            <i class="ti ti-star-filled text-warning"></i>
+                            <i class="ti ti-star-filled text-warning"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+    <!-- Testimonials: End -->
+
+    <!-- Pricing: Start -->
+    <section id="landingPricing" class="section-py landing-pricing bg-body">
+        <div class="container">
+            <div class="text-center mb-5">
+                <span class="badge bg-primary">💰 Simple, Transparent Pricing</span>
+                <h2 class="display-5 fw-bold mt-3 mb-3">Choose Your Growth Plan</h2>
+                <p class="lead text-muted">Start free, upgrade as you grow. No hidden fees, no long-term contracts.</p>
+            </div>
+            <div class="row g-4 justify-content-center">
+                <!-- Starter -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card pricing-card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="text-center mb-4">
+                                <h4 class="mb-2 fw-bold">Starter</h4>
+                                <p class="text-muted mb-3">Perfect for small shops</p>
+                                <div class="d-flex justify-content-center align-items-center mb-2">
+                                    <sup class="h6 pricing-currency mt-2 me-1 text-muted">$</sup>
+                                    <h1 class="display-4 mb-0 text-primary fw-bold">29</h1>
+                                    <sub class="h6 pricing-duration mt-auto text-muted">/month</sub>
+                                </div>
+                                <small class="text-muted">14-day free trial</small>
+                            </div>
+                            <ul class="list-unstyled mb-4">
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> <strong>1 User Account</strong></li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> Up to 100 Repairs/month</li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> Basic Inventory Management</li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> Email Support</li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> Mobile App Access</li>
+                                <li class="mb-3 text-muted"><i class="ti ti-x text-muted me-2"></i> Multi-store Support</li>
+                                <li class="mb-3 text-muted"><i class="ti ti-x text-muted me-2"></i> Advanced Reporting</li>
+                            </ul>
+                            <a href="{{ route('login') }}" class="btn btn-outline-primary w-100 fw-bold">Start Free Trial</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Pro -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card pricing-card h-100 border-primary border-3 shadow-lg position-relative">
+                        <div class="position-absolute top-0 start-50 translate-middle">
+                            <span class="badge bg-primary py-2 px-3">Most Popular</span>
+                        </div>
+                        <div class="card-body p-4 pt-5">
+                            <div class="text-center mb-4">
+                                <h4 class="mb-2 fw-bold">Professional</h4>
+                                <p class="text-muted mb-3">For growing businesses</p>
+                                <div class="d-flex justify-content-center align-items-center mb-2">
+                                    <sup class="h6 pricing-currency mt-2 me-1 text-muted">$</sup>
+                                    <h1 class="display-4 mb-0 text-primary fw-bold">79</h1>
+                                    <sub class="h6 pricing-duration mt-auto text-muted">/month</sub>
+                                </div>
+                                <small class="text-muted">Save $20/month vs monthly</small>
+                            </div>
+                            <ul class="list-unstyled mb-4">
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> <strong>5 User Accounts</strong></li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> <strong>Unlimited Repairs</strong></li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> Advanced Inventory</li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> Priority Support</li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> SMS Notifications</li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> Business Analytics</li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> API Access</li>
+                            </ul>
+                            <a href="{{ route('login') }}" class="btn btn-gradient w-100 fw-bold">Start Free Trial</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Enterprise -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card pricing-card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="text-center mb-4">
+                                <h4 class="mb-2 fw-bold">Enterprise</h4>
+                                <p class="text-muted mb-3">For large chains & franchises</p>
+                                <div class="d-flex justify-content-center align-items-center mb-2">
+                                    <sup class="h6 pricing-currency mt-2 me-1 text-muted">$</sup>
+                                    <h1 class="display-4 mb-0 text-primary fw-bold">199</h1>
+                                    <sub class="h6 pricing-duration mt-auto text-muted">/month</sub>
+                                </div>
+                                <small class="text-muted">Custom enterprise features</small>
+                            </div>
+                            <ul class="list-unstyled mb-4">
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> <strong>Unlimited Users</strong></li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> <strong>Multi-store Management</strong></li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> Advanced API Access</li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> Dedicated Account Manager</li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> White Labeling</li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> Custom Integrations</li>
+                                <li class="mb-3"><i class="ti ti-check text-success me-2"></i> 24/7 Phone Support</li>
+                            </ul>
+                            <a href="{{ route('login') }}" class="btn btn-outline-primary w-100 fw-bold">Contact Sales</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-5">
+                <p class="text-muted mb-2">All plans include:</p>
+                <div class="d-flex justify-content-center gap-4 flex-wrap">
+                    <span class="badge bg-light text-dark px-3 py-2">✓ 14-day free trial</span>
+                    <span class="badge bg-light text-dark px-3 py-2">✓ No setup fees</span>
+                    <span class="badge bg-light text-dark px-3 py-2">✓ Cancel anytime</span>
+                    <span class="badge bg-light text-dark px-3 py-2">✓ Secure data</span>
+                </div>
+            </div>
+        </div>
+    </section>
     <!-- Pricing: End -->
+
+    <!-- Final CTA: Start -->
+    <section class="py-5" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white;">
+        <div class="container text-center">
+            <h2 class="display-5 fw-bold mb-4">Ready to Transform Your Mobile Shop?</h2>
+            <p class="lead mb-4">Join 500+ successful shop owners who have already upgraded their business with MobileShop SaaS</p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{{ route('login') }}" class="btn btn-light btn-lg px-5 py-3 fw-bold">
+                    <i class="ti ti-rocket me-2"></i> Start Your Free Trial
+                </a>
+                <a href="#landingContact" class="btn btn-outline-light btn-lg px-5 py-3 fw-bold">
+                    <i class="ti ti-phone me-2"></i> Talk to Sales
+                </a>
+            </div>
+            <div class="mt-4">
+                <small class="text-white-50">✓ No credit card required • ✓ 14-day free trial • ✓ Setup in under 5 minutes</small>
+            </div>
+        </div>
+    </section>
+    <!-- Final CTA: End -->
 
     <!-- Footer: Start -->
     <footer class="landing-footer bg-body footer-text">

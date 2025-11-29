@@ -48,7 +48,7 @@ class ReturnController extends Controller
                         return number_format($row->total_amount, 2);
                     })
                     ->addColumn('return_type', function ($row) {
-                        $badgeClass = match($row->return_type) {
+                        $badgeClass = match ($row->return_type) {
                             'REFUND' => 'bg-info',
                             'EXCHANGE' => 'bg-warning',
                             'STORE_CREDIT' => 'bg-primary',
@@ -57,7 +57,7 @@ class ReturnController extends Controller
                         return '<span class="badge ' . $badgeClass . '">' . $row->return_type . '</span>';
                     })
                     ->addColumn('status', function ($row) {
-                        $badgeClass = match($row->status) {
+                        $badgeClass = match ($row->status) {
                             'PENDING' => 'bg-warning',
                             'APPROVED' => 'bg-success',
                             'REJECTED' => 'bg-danger',
@@ -72,33 +72,33 @@ class ReturnController extends Controller
                         $rejectUrl = route('returns.reject', $row->id);
                         $processUrl = route('returns.process', $row->id);
                         $csrf = csrf_field();
-                        
+
                         $actions = '
                             <div class="dropdown">
                                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                    <i class="ti ti-dots-vertical"></i>
+                                    <i class="ti tabler-dots-vertical"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="'.$showUrl.'"><i class="ti ti-eye me-1"></i> View</a>';
-                        
+                                    <a class="dropdown-item" href="' . $showUrl . '"><i class="ti tabler-eye me-1"></i> View</a>';
+
                         if ($row->status === 'PENDING') {
-                            $actions .= '<form action="'.$approveUrl.'" method="POST" style="display:inline;">
-                                            '.$csrf.'
-                                            <button type="submit" class="dropdown-item"><i class="ti ti-check me-1"></i> Approve</button>
+                            $actions .= '<form action="' . $approveUrl . '" method="POST" style="display:inline;">
+                                            ' . $csrf . '
+                                            <button type="submit" class="dropdown-item"><i class="ti tabler-check me-1"></i> Approve</button>
                                         </form>';
-                            $actions .= '<form action="'.$rejectUrl.'" method="POST" style="display:inline;">
-                                            '.$csrf.'
-                                            <button type="submit" class="dropdown-item"><i class="ti ti-x me-1"></i> Reject</button>
+                            $actions .= '<form action="' . $rejectUrl . '" method="POST" style="display:inline;">
+                                            ' . $csrf . '
+                                            <button type="submit" class="dropdown-item"><i class="ti tabler-x me-1"></i> Reject</button>
                                         </form>';
                         }
-                        
+
                         if ($row->status === 'APPROVED') {
-                            $actions .= '<form action="'.$processUrl.'" method="POST" style="display:inline;">
-                                            '.$csrf.'
-                                            <button type="submit" class="dropdown-item"><i class="ti ti-package me-1"></i> Process</button>
+                            $actions .= '<form action="' . $processUrl . '" method="POST" style="display:inline;">
+                                            ' . $csrf . '
+                                            <button type="submit" class="dropdown-item"><i class="ti tabler-package me-1"></i> Process</button>
                                         </form>';
                         }
-                        
+
                         $actions .= '</div></div>';
                         return $actions;
                     })
@@ -135,7 +135,7 @@ class ReturnController extends Controller
      */
 
 
-// ... (inside class)
+    // ... (inside class)
 
     /**
      * Store a newly created resource in storage.

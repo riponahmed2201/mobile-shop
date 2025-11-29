@@ -78,18 +78,18 @@ class SaleController extends Controller
                         $deleteUrl = route('sales.destroy', $row->id);
                         $csrf = csrf_field();
                         $method = method_field('DELETE');
-                        
+
                         return '
                             <div class="dropdown">
                                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                    <i class="ti ti-dots-vertical"></i>
+                                    <i class="ti tabler-dots-vertical"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="'.$showUrl.'"><i class="ti ti-eye me-1"></i> View</a>
-                                    <a class="dropdown-item" href="'.$editUrl.'"><i class="ti ti-pencil me-1"></i> Edit</a>
+                                    <a class="dropdown-item" href="'.$showUrl.'"><i class="ti tabler-eye me-1"></i> View</a>
+                                    <a class="dropdown-item" href="'.$editUrl.'"><i class="ti tabler-pencil me-1"></i> Edit</a>
                                     <form action="'.$deleteUrl.'" method="POST" onsubmit="return confirm(\'Are you sure?\');" style="display:inline;">
                                         '.$csrf.$method.'
-                                        <button type="submit" class="dropdown-item"><i class="ti ti-trash me-1"></i> Delete</button>
+                                        <button type="submit" class="dropdown-item"><i class="ti tabler-trash me-1"></i> Delete</button>
                                     </form>
                                 </div>
                             </div>
@@ -124,7 +124,7 @@ class SaleController extends Controller
     {
         $customers = $this->customerService->getCustomersForTenant();
         $products = $this->productService->getProductsForTenant();
-        
+
         return view('sales.create', compact('customers', 'products'));
     }
 

@@ -55,7 +55,7 @@ class QuotationController extends Controller
                         return number_format($row->total_amount, 2);
                     })
                     ->addColumn('status', function ($row) {
-                        $badgeClass = match($row->status) {
+                        $badgeClass = match ($row->status) {
                             'DRAFT' => 'bg-secondary',
                             'SENT' => 'bg-info',
                             'ACCEPTED' => 'bg-success',
@@ -73,27 +73,27 @@ class QuotationController extends Controller
                         $deleteUrl = route('quotations.destroy', $row->id);
                         $csrf = csrf_field();
                         $method = method_field('DELETE');
-                        
+
                         $actions = '
                             <div class="dropdown">
                                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                    <i class="ti ti-dots-vertical"></i>
+                                    <i class="ti tabler-dots-vertical"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="'.$showUrl.'"><i class="ti ti-eye me-1"></i> View</a>';
-                        
+                                    <a class="dropdown-item" href="' . $showUrl . '"><i class="ti tabler-eye me-1"></i> View</a>';
+
                         if ($row->status !== 'CONVERTED') {
-                            $actions .= '<a class="dropdown-item" href="'.$editUrl.'"><i class="ti ti-pencil me-1"></i> Edit</a>';
-                            $actions .= '<form action="'.$convertUrl.'" method="POST" style="display:inline;">
-                                            '.$csrf.'
-                                            <button type="submit" class="dropdown-item"><i class="ti ti-check me-1"></i> Convert to Sale</button>
+                            $actions .= '<a class="dropdown-item" href="' . $editUrl . '"><i class="ti tabler-pencil me-1"></i> Edit</a>';
+                            $actions .= '<form action="' . $convertUrl . '" method="POST" style="display:inline;">
+                                            ' . $csrf . '
+                                            <button type="submit" class="dropdown-item"><i class="ti tabler-check me-1"></i> Convert to Sale</button>
                                         </form>';
-                            $actions .= '<form action="'.$deleteUrl.'" method="POST" onsubmit="return confirm(\'Are you sure?\');" style="display:inline;">
-                                            '.$csrf.$method.'
-                                            <button type="submit" class="dropdown-item"><i class="ti ti-trash me-1"></i> Delete</button>
+                            $actions .= '<form action="' . $deleteUrl . '" method="POST" onsubmit="return confirm(\'Are you sure?\');" style="display:inline;">
+                                            ' . $csrf . $method . '
+                                            <button type="submit" class="dropdown-item"><i class="ti tabler-trash me-1"></i> Delete</button>
                                         </form>';
                         }
-                        
+
                         $actions .= '</div></div>';
                         return $actions;
                     })
@@ -123,7 +123,7 @@ class QuotationController extends Controller
     {
         $customers = $this->customerService->getCustomersForTenant();
         $products = $this->productService->getProductsForTenant();
-        
+
         return view('quotations.create', compact('customers', 'products'));
     }
 
@@ -167,7 +167,7 @@ class QuotationController extends Controller
         $customers = $this->customerService->getCustomersForTenant();
         $products = $this->productService->getProductsForTenant();
         $quotation->load(['items']);
-        
+
         return view('quotations.edit', compact('quotation', 'customers', 'products'));
     }
 
