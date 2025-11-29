@@ -144,7 +144,22 @@ class ReturnController extends Controller
     {
         try {
             $validated = $request->validated();
-            $items = $request->input('items');
+            $allItems = $request->input('items', []);
+            
+            // Filter only selected items
+            $items = [];
+            foreach ($allItems as $item) {
+                if (isset($item['selected']) && $item['selected']) {
+                    $items[] = $item;
+                }
+            }
+            
+            if (empty($items)) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Please select at least one item to return.');
+            }
+            
             $this->returnService->createReturn($validated, $items);
 
             return redirect()->route('returns.index')

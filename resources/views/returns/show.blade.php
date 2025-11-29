@@ -123,14 +123,14 @@
                 <form action="{{ route('returns.approve', $return->id) }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-success w-100" onclick="return confirm('Approve this return?')">
-                        <i class="ti ti-check me-1"></i> Approve Return
+                        <i class="ti tabler-check me-1"></i> Approve Return
                     </button>
                 </form>
                 
                 <form action="{{ route('returns.reject', $return->id) }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Reject this return?')">
-                        <i class="ti ti-x me-1"></i> Reject Return
+                        <i class="ti tabler-x me-1"></i> Reject Return
                     </button>
                 </form>
                 @endif
@@ -139,7 +139,7 @@
                 <form action="{{ route('returns.process', $return->id) }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-primary w-100" onclick="return confirm('Process this return (complete refund/exchange)?')">
-                        <i class="ti ti-package me-1"></i> Process Return
+                        <i class="ti tabler-package me-1"></i> Process Return
                     </button>
                 </form>
                 @endif

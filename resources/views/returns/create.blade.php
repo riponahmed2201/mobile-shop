@@ -17,12 +17,13 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label">Sale Invoice # <span class="text-danger">*</span></label>
-                        <select name="sale_id" class="form-select @error('sale_id') is-invalid @enderror" required>
+                        <select name="sale_id" id="sale-select" class="form-select @error('sale_id') is-invalid @enderror" required>
                             <option value="">Select Sale Invoice</option>
                             @foreach($sales as $sale)
-                                <option value="{{ $sale->id }}" {{ old('sale_id') == $sale->id ? 'selected' : '' }}>{{ $sale->invoice_number }} - {{ $sale->customer ? $sale->customer->full_name : 'Walk-in' }} ({{ $sale->sale_date->format('d M Y') }})</option>
+                                <option value="{{ $sale->id }}" data-customer-id="{{ $sale->customer_id }}" {{ old('sale_id') == $sale->id ? 'selected' : '' }}>{{ $sale->invoice_number }} - {{ $sale->customer ? $sale->customer->full_name : 'Walk-in' }} ({{ $sale->sale_date->format('d M Y') }})</option>
                             @endforeach
                         </select>
+                        <input type="hidden" name="customer_id" id="customer-id" value="{{ old('customer_id') }}">
                         @error('sale_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -69,7 +70,7 @@
 
                 <h5 class="mb-3">Return Items <span class="text-danger">*</span></h5>
                 <div class="alert alert-info" id="select-sale-alert">
-                    <i class="ti ti-info-circle me-2"></i> Please select a sale invoice to view items.
+                    <i class="ti tabler-info-circle me-2"></i> Please select a sale invoice to view items.
                 </div>
                 <div id="items-container" style="display: none;">
                     <div class="table-responsive">
@@ -106,13 +107,20 @@
 @push('page_js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const saleSelect = document.querySelector('select[name="sale_id"]');
+    const saleSelect = document.getElementById('sale-select');
+    const customerIdInput = document.getElementById('customer-id');
     const itemsContainer = document.getElementById('items-container');
     const itemsTableBody = document.getElementById('items-table-body');
     const selectSaleAlert = document.getElementById('select-sale-alert');
 
     saleSelect.addEventListener('change', function() {
         const saleId = this.value;
+        const selectedOption = this.options[this.selectedIndex];
+        const customerId = selectedOption.getAttribute('data-customer-id');
+        
+        // Set customer_id
+        customerIdInput.value = customerId || '';
+        
         if (saleId) {
             fetchItems(saleId);
         } else {
@@ -137,11 +145,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <td class="text-center">
                                     <input type="checkbox" name="items[${index}][selected]" class="form-check-input item-checkbox" value="1" onchange="toggleQty(${index})">
                                     <input type="hidden" name="items[${index}][product_id]" value="${item.product_id}">
+                                    <input type="hidden" name="items[${index}][sale_item_id]" value="${item.id}">
+                                    <input type="hidden" name="items[${index}][unit_price]" value="${item.unit_price}">
                                 </td>
                                 <td>${item.product.product_name}</td>
                                 <td>${item.quantity}</td>
                                 <td>
-                                    <input type="number" name="items[${index}][quantity]" class="form-control form-control-sm item-qty" min="1" max="${item.quantity}" value="1" disabled required>
+                                    <input type="number" name="items[${index}][quantity]" class="form-control form-control-sm item-qty" min="1" max="${item.quantity}" value="1" disabled required onchange="calculateItemTotal(${index}, ${item.unit_price})">
+                                    <input type="hidden" name="items[${index}][total_amount]" id="total-${index}" value="${item.unit_price}">
                                 </td>
                                 <td>৳${item.unit_price}</td>
                             </tr>
@@ -170,6 +181,13 @@ document.addEventListener('DOMContentLoaded', function() {
         selectSaleAlert.style.display = 'block';
         itemsTableBody.innerHTML = '';
     }
+
+    window.calculateItemTotal = function(index, unitPrice) {
+        const qtyInput = document.querySelector(`input[name="items[${index}][quantity]"]`);
+        const totalInput = document.getElementById(`total-${index}`);
+        const quantity = parseFloat(qtyInput.value) || 0;
+        totalInput.value = (quantity * unitPrice).toFixed(2);
+    };
 
     window.toggleQty = function(index) {
         const checkbox = document.querySelector(`input[name="items[${index}][selected]"]`);
