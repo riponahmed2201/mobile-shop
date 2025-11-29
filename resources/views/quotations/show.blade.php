@@ -100,7 +100,7 @@
                         <dd class="col-sm-7">{{ $quotation->notes }}</dd>
                         @endif
 
-                        @if($quotation->status === 'CONVERTED')
+                        @if($quotation->status === 'CONVERTED' && $quotation->converted_to_sale_id)
                         <dt class="col-sm-5">Converted to:</dt>
                         <dd class="col-sm-7">
                             <a href="{{ route('sales.show', $quotation->converted_to_sale_id) }}">
@@ -121,7 +121,7 @@
                 <form action="{{ route('quotations.convert', $quotation->id) }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-success w-100" onclick="return confirm('Convert this quotation to a sale?')">
-                        <i class="ti ti-check me-1"></i> Convert to Sale
+                        <i class="ti tabler-check me-1"></i> Convert to Sale
                     </button>
                 </form>
                 @endif

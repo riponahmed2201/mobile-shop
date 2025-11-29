@@ -46,6 +46,17 @@
                     </div>
                 </div>
 
+                <hr>
+
+                <h5 class="mb-3">Quotation Items</h5>
+                <div id="items-container"></div>
+                
+                <button type="button" class="btn btn-sm btn-secondary mb-3" onclick="addItem()">
+                    <i class="ti tabler-plus me-1"></i> Add Item
+                </button>
+
+                <hr>
+
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label">Discount Amount</label>
@@ -81,3 +92,83 @@
     </div>
 </div>
 @endsection
+
+@push('page_js')
+<script>
+let itemIndex = 0;
+const products = @json($products);
+const existingItems = @json($quotation->items);
+
+function addItem(item = null) {
+    const container = document.getElementById('items-container');
+    const isExisting = item !== null;
+    const productId = isExisting ? item.product_id : '';
+    const quantity = isExisting ? item.quantity : 1;
+    const unitPrice = isExisting ? item.unit_price : '';
+    const totalPrice = isExisting ? item.total_price : '';
+
+    const itemHtml = `
+        <div class="card mb-2 item-row" data-index="${itemIndex}">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label">Product</label>
+                        <select name="items[${itemIndex}][product_id]" class="form-select" required onchange="updatePrice(${itemIndex})">
+                            <option value="">Select Product</option>
+                            ${products.map(p => `<option value="${p.id}" data-price="${p.selling_price}" ${p.id == productId ? 'selected' : ''}>${p.product_name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" name="items[${itemIndex}][quantity]" class="form-control" min="1" value="${quantity}" required onchange="calculateTotal(${itemIndex})">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Unit Price</label>
+                        <input type="number" name="items[${itemIndex}][unit_price]" class="form-control" step="0.01" min="0" value="${unitPrice}" required onchange="calculateTotal(${itemIndex})">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Total</label>
+                        <input type="number" name="items[${itemIndex}][total_price]" class="form-control" step="0.01" value="${totalPrice}" readonly>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(${itemIndex})">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', itemHtml);
+    itemIndex++;
+}
+
+function removeItem(index) {
+    document.querySelector(`[data-index="${index}"]`).remove();
+}
+
+function updatePrice(index) {
+    const select = document.querySelector(`select[name="items[${index}][product_id]"]`);
+    const priceInput = document.querySelector(`input[name="items[${index}][unit_price]"]`);
+    const selectedOption = select.options[select.selectedIndex];
+    if (selectedOption.dataset.price) {
+        priceInput.value = selectedOption.dataset.price;
+        calculateTotal(index);
+    }
+}
+
+function calculateTotal(index) {
+    const quantity = parseFloat(document.querySelector(`input[name="items[${index}][quantity]"]`).value) || 0;
+    const unitPrice = parseFloat(document.querySelector(`input[name="items[${index}][unit_price]"]`).value) || 0;
+    const totalInput = document.querySelector(`input[name="items[${index}][total_price]"]`);
+    totalInput.value = (quantity * unitPrice).toFixed(2);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (existingItems && existingItems.length > 0) {
+        existingItems.forEach(item => addItem(item));
+    } else {
+        addItem();
+    }
+});
+</script>
+@endpush

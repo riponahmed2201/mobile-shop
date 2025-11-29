@@ -49,7 +49,7 @@
                 <div id="items-container"></div>
                 
                 <button type="button" class="btn btn-sm btn-secondary mb-3" onclick="addItem()">
-                    <i class="ti ti-plus me-1"></i> Add Item
+                    <i class="ti tabler-plus me-1"></i> Add Item
                 </button>
 
                 <hr>
