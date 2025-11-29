@@ -45,7 +45,7 @@
                                     <td>
                                         @if($installment->status !== 'PAID')
                                         <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal{{ $installment->id }}">
-                                            <i class="ti ti-cash me-1"></i> Pay
+                                            <i class="ti tabler-cash me-1"></i> Pay
                                         </button>
 
                                         <!-- Payment Modal -->
@@ -101,7 +101,10 @@
                                             </div>
                                         </div>
                                         @else
-                                        <span class="text-success"><i class="ti ti-check"></i> Paid</span>
+                                        <span class="text-success"><i class="ti tabler-check"></i> Paid</span>
+                                        <a href="{{ route('emi.receipt', $installment->id) }}" class="btn btn-sm btn-outline-primary ms-2" target="_blank">
+                                            <i class="ti tabler-printer"></i> Receipt
+                                        </a>
                                         @endif
                                     </td>
                                 </tr>
@@ -186,6 +189,9 @@
                 </div>
             </div>
 
+            <a href="{{ route('emi.agreement', $emiPlan->id) }}" class="btn btn-primary w-100 mb-2" target="_blank">
+                <i class="ti tabler-file-text me-1"></i> Print EMI Agreement
+            </a>
             <a href="{{ route('emi.index') }}" class="btn btn-secondary w-100">Back to List</a>
         </div>
     </div>

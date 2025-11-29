@@ -27,6 +27,10 @@ class StoreSaleRequest extends FormRequest
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.total_price' => 'required|numeric|min:0',
+            // EMI fields (optional, only when sale_type is EMI)
+            'number_of_installments' => 'nullable|integer|min:1',
+            'interest_rate' => 'nullable|numeric|min:0',
+            'emi_start_date' => 'nullable|date',
         ];
     }
 }

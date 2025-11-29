@@ -74,7 +74,7 @@ class EmiController extends Controller
                                     <i class="ti tabler-dots-vertical"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="'.$showUrl.'"><i class="ti ti-eye me-1"></i> View Details</a>
+                                    <a class="dropdown-item" href="'.$showUrl.'"><i class="ti tabler-eye me-1"></i> View Details</a>
                                 </div>
                             </div>
                         ';
@@ -105,6 +105,24 @@ class EmiController extends Controller
     {
         $emiPlan->load(['sale', 'customer', 'installments']);
         return view('emi.show', compact('emiPlan'));
+    }
+
+    /**
+     * Display EMI agreement/invoice
+     */
+    public function agreement(EmiPlan $emiPlan): View
+    {
+        $emiPlan->load(['sale', 'customer', 'installments']);
+        return view('emi.agreement', compact('emiPlan'));
+    }
+
+    /**
+     * Display installment payment receipt
+     */
+    public function receipt(EmiInstallment $installment): View
+    {
+        $installment->load(['emiPlan.customer', 'emiPlan.installments']);
+        return view('emi.receipt', compact('installment'));
     }
 
     /**

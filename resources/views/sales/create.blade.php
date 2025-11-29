@@ -71,6 +71,37 @@
                     </div>
                 </div>
 
+                <!-- EMI Configuration (shown only when Sale Type = EMI) -->
+                <div class="row mb-3" id="emi-fields" style="display: none;">
+                    <div class="col-md-4">
+                        <label class="form-label">Number of Installments <span class="text-danger">*</span></label>
+                        <select name="number_of_installments" class="form-select @error('number_of_installments') is-invalid @enderror">
+                            <option value="3" {{ old('number_of_installments') == 3 ? 'selected' : '' }}>3 Months</option>
+                            <option value="6" {{ old('number_of_installments') == 6 ? 'selected' : '' }}>6 Months</option>
+                            <option value="12" {{ old('number_of_installments') == 12 ? 'selected' : 'selected' }}>12 Months</option>
+                            <option value="18" {{ old('number_of_installments') == 18 ? 'selected' : '' }}>18 Months</option>
+                            <option value="24" {{ old('number_of_installments') == 24 ? 'selected' : '' }}>24 Months</option>
+                        </select>
+                        @error('number_of_installments')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Interest Rate (%)</label>
+                        <input type="number" name="interest_rate" class="form-control @error('interest_rate') is-invalid @enderror" step="0.01" min="0" value="{{ old('interest_rate', 0) }}">
+                        @error('interest_rate')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">EMI Start Date</label>
+                        <input type="date" name="emi_start_date" class="form-control @error('emi_start_date') is-invalid @enderror" value="{{ old('emi_start_date', date('Y-m-d', strtotime('+1 month'))) }}">
+                        @error('emi_start_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
                 <hr>
 
                 <h5 class="mb-3">Sale Items</h5>
@@ -175,6 +206,21 @@ function calculateTotal(index) {
 // Add first item on load
 document.addEventListener('DOMContentLoaded', function() {
     addItem();
+    
+    // Toggle EMI fields based on sale type
+    const saleTypeSelect = document.querySelector('select[name="sale_type"]');
+    const emiFields = document.getElementById('emi-fields');
+    
+    function toggleEmiFields() {
+        if (saleTypeSelect.value === 'EMI') {
+            emiFields.style.display = 'flex';
+        } else {
+            emiFields.style.display = 'none';
+        }
+    }
+    
+    saleTypeSelect.addEventListener('change', toggleEmiFields);
+    toggleEmiFields(); // Initial check
 });
 </script>
 @endpush

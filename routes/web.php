@@ -94,6 +94,8 @@ Route::prefix('returns')->name('returns.')->group(function () {
 Route::prefix('emi')->name('emi.')->group(function () {
     Route::get('/', [EmiController::class, 'index'])->name('index');
     Route::get('/{emiPlan}', [EmiController::class, 'show'])->name('show');
+    Route::get('/{emiPlan}/agreement', [EmiController::class, 'agreement'])->name('agreement');
+    Route::get('/installment/{installment}/receipt', [EmiController::class, 'receipt'])->name('receipt');
     Route::post('/{emiPlan}/payment', [EmiController::class, 'recordPayment'])->name('record-payment');
 });
 

@@ -96,6 +96,11 @@ class SaleService
                 ]);
             }
 
+            // Create EMI plan if sale type is EMI
+            if (isset($data['sale_type']) && $data['sale_type'] === 'EMI') {
+                $this->createEmiPlanForSale($sale, $data);
+            }
+
             DB::commit();
 
             Log::info('Sale created successfully', [
@@ -240,6 +245,45 @@ class SaleService
             return 'PARTIAL';
         } else {
             return 'UNPAID';
+        }
+    }
+
+    /**
+     * Create EMI plan for a sale
+     */
+    private function createEmiPlanForSale(Sale $sale, array $data): void
+    {
+        try {
+            $emiService = app(EmiService::class);
+            
+            // Default EMI parameters (can be customized based on requirements)
+            $emiData = [
+                'sale_id' => $sale->id,
+                'customer_id' => $sale->customer_id,
+                'total_amount' => $sale->total_amount,
+                'down_payment' => $data['paid_amount'] ?? 0, // Use paid amount as down payment
+                'number_of_installments' => $data['number_of_installments'] ?? 12, // Default 12 months
+                'interest_rate' => $data['interest_rate'] ?? 0, // Default 0% interest
+                'start_date' => $data['emi_start_date'] ?? now()->addMonth(), // Start next month
+                'status' => 'ACTIVE',
+            ];
+            
+            // Calculate installment amount
+            $remainingAmount = $emiData['total_amount'] - $emiData['down_payment'];
+            $emiData['installment_amount'] = $remainingAmount / $emiData['number_of_installments'];
+            
+            $emiService->createEmiPlan($emiData);
+            
+            Log::info('EMI plan created for sale', [
+                'sale_id' => $sale->id,
+                'emi_data' => $emiData
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error creating EMI plan for sale', [
+                'sale_id' => $sale->id,
+                'error' => $e->getMessage()
+            ]);
+            // Don't throw exception, just log it so sale creation doesn't fail
         }
     }
 
