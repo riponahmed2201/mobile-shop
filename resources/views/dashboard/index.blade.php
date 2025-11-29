@@ -19,7 +19,7 @@
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-primary">
-                                <i class="ti ti-currency-taka ti-sm"></i>
+                                <i class="ti tabler-currency-taka ti-sm"></i>
                             </span>
                         </div>
                     </div>
@@ -41,7 +41,7 @@
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-success">
-                                <i class="ti ti-chart-bar ti-sm"></i>
+                                <i class="ti tabler-chart-bar ti-sm"></i>
                             </span>
                         </div>
                     </div>
@@ -63,7 +63,7 @@
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-warning">
-                                <i class="ti ti-shopping-cart ti-sm"></i>
+                                <i class="ti tabler-shopping-cart ti-sm"></i>
                             </span>
                         </div>
                     </div>
@@ -85,7 +85,7 @@
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-info">
-                                <i class="ti ti-users ti-sm"></i>
+                                <i class="ti tabler-users ti-sm"></i>
                             </span>
                         </div>
                     </div>

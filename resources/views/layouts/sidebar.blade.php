@@ -511,6 +511,6 @@
 <!-- Quick Action Button (Floating) -->
 <div class="buy-now">
     <a href="{{ route('sales.create') }}" class="btn btn-danger btn-buy-now">
-        <i class="ti ti-plus"></i> New Sale
+        <i class="ti tabler-plus"></i> New Sale
     </a>
 </div>

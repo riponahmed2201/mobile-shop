@@ -158,7 +158,7 @@
                 <!-- Menu wrapper: Start -->
                 <div class="collapse navbar-collapse landing-nav-menu" id="navbarSupportedContent">
                     <button class="navbar-toggler border-0 text-heading position-absolute end-0 top-0 scaleX-n1-rtl" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <i class="ti ti-x ti-sm"></i>
+                        <i class="ti tabler-x ti-sm"></i>
                     </button>
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
@@ -183,22 +183,22 @@
                     <!-- Style Switcher -->
                     <li class="nav-item dropdown-style-switcher dropdown me-2 me-xl-0">
                         <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                            <i class="ti ti-sm"></i>
+                            <i class="ti tabler-sm"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-styles">
                             <li>
                                 <a class="dropdown-item" href="javascript:void(0);" data-theme="light">
-                                    <span class="align-middle"><i class="ti ti-sun me-2"></i>Light</span>
+                                    <span class="align-middle"><i class="ti tabler-sun me-2"></i>Light</span>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="javascript:void(0);" data-theme="dark">
-                                    <span class="align-middle"><i class="ti ti-moon me-2"></i>Dark</span>
+                                    <span class="align-middle"><i class="ti tabler-moon me-2"></i>Dark</span>
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="javascript:void(0);" data-theme="system">
-                                    <span class="align-middle"><i class="ti ti-device-desktop me-2"></i>System</span>
+                                    <span class="align-middle"><i class="ti tabler-device-desktop me-2"></i>System</span>
                                 </a>
                             </li>
                         </ul>
@@ -207,7 +207,7 @@
 
                     <li>
                         <a href="{{ route('login') }}" class="btn btn-primary">
-                            <span class="tf-icons ti ti-login scaleX-n1-rtl me-md-1"></span>
+                            <span class="tf-icons ti tabler-login scaleX-n1-rtl me-md-1"></span>
                             <span class="d-none d-md-block">Login/Register</span>
                         </a>
                     </li>
@@ -224,7 +224,7 @@
             <div class="row align-items-center">
                 <div class="col-lg-6 text-center text-lg-start hero-content">
                     <div class="mb-4">
-                        <span class="badge bg-white bg-opacity-20 text-white px-3 py-2 mb-3">🚀 #1 Mobile Shop Management Platform</span>
+                        <span class="badge bg-white bg-opacity-20 text-black px-3 py-2 mb-3">🚀 #1 Mobile Shop Management Platform</span>
                     </div>
                     <h1 class="display-3 fw-bold mb-4">Transform Your Mobile Repair Business</h1>
                     <p class="lead mb-5 fs-5">
@@ -300,7 +300,7 @@
                     <div class="card feature-card h-100 border-0 shadow-sm">
                         <div class="card-body text-center p-4">
                             <div class="feature-icon bg-primary bg-gradient text-white mx-auto">
-                                <i class="ti ti-device-mobile"></i>
+                                <i class="ti tabler-device-mobile"></i>
                             </div>
                             <h5 class="card-title fw-bold">Smart Repair Tracking</h5>
                             <p class="card-text text-muted">Complete repair lifecycle management with automated customer notifications, status updates, and detailed work logs.</p>
@@ -311,7 +311,7 @@
                     <div class="card feature-card h-100 border-0 shadow-sm">
                         <div class="card-body text-center p-4">
                             <div class="feature-icon bg-success bg-gradient text-white mx-auto">
-                                <i class="ti ti-shopping-cart"></i>
+                                <i class="ti tabler-shopping-cart"></i>
                             </div>
                             <h5 class="card-title fw-bold">Lightning-Fast POS</h5>
                             <p class="card-text text-muted">Streamlined checkout process with barcode scanning, inventory sync, and seamless payment processing.</p>
@@ -322,7 +322,7 @@
                     <div class="card feature-card h-100 border-0 shadow-sm">
                         <div class="card-body text-center p-4">
                             <div class="feature-icon bg-warning bg-gradient text-white mx-auto">
-                                <i class="ti ti-box"></i>
+                                <i class="ti tabler-box"></i>
                             </div>
                             <h5 class="card-title fw-bold">Intelligent Inventory</h5>
                             <p class="card-text text-muted">Real-time stock management with low-stock alerts, supplier integration, and automated reorder suggestions.</p>
@@ -333,7 +333,7 @@
                     <div class="card feature-card h-100 border-0 shadow-sm">
                         <div class="card-body text-center p-4">
                             <div class="feature-icon bg-info bg-gradient text-white mx-auto">
-                                <i class="ti ti-users"></i>
+                                <i class="ti tabler-users"></i>
                             </div>
                             <h5 class="card-title fw-bold">Customer Relationship Management</h5>
                             <p class="card-text text-muted">Build lasting customer relationships with purchase history tracking, loyalty programs, and personalized marketing.</p>
@@ -344,7 +344,7 @@
                     <div class="card feature-card h-100 border-0 shadow-sm">
                         <div class="card-body text-center p-4">
                             <div class="feature-icon bg-danger bg-gradient text-white mx-auto">
-                                <i class="ti ti-chart-bar"></i>
+                                <i class="ti tabler-chart-bar"></i>
                             </div>
                             <h5 class="card-title fw-bold">Business Intelligence</h5>
                             <p class="card-text text-muted">Comprehensive analytics dashboard with profit/loss reports, performance metrics, and actionable insights.</p>
@@ -355,7 +355,7 @@
                     <div class="card feature-card h-100 border-0 shadow-sm">
                         <div class="card-body text-center p-4">
                             <div class="feature-icon bg-secondary bg-gradient text-white mx-auto">
-                                <i class="ti ti-cloud"></i>
+                                <i class="ti tabler-cloud"></i>
                             </div>
                             <h5 class="card-title fw-bold">Cloud-Powered Platform</h5>
                             <p class="card-text text-muted">Secure, scalable cloud infrastructure with 99.9% uptime, automatic backups, and multi-device synchronization.</p>
