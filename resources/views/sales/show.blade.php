@@ -111,6 +111,7 @@
             </div>
 
             <div class="d-flex gap-2">
+                <a href="{{ route('sales.invoice', $sale->id) }}" target="_blank" class="btn btn-info flex-fill">Print Invoice</a>
                 <a href="{{ route('sales.index') }}" class="btn btn-secondary flex-fill">Back to List</a>
                 @if($sale->sale_status === 'COMPLETED')
                 <a href="{{ route('sales.edit', $sale->id) }}" class="btn btn-primary flex-fill">Edit</a>

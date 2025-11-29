@@ -162,6 +162,36 @@ class SaleController extends Controller
     // ...
 
     /**
+     * Display the specified resource.
+     */
+    public function show(Sale $sale): View
+    {
+        $sale->load(['items.product', 'customer', 'soldBy']);
+        return view('sales.show', compact('sale'));
+    }
+
+    /**
+     * Display the invoice.
+     */
+    public function invoice(Sale $sale): View
+    {
+        $sale->load(['items.product', 'customer', 'soldBy']);
+        return view('sales.invoice', compact('sale'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Sale $sale): View
+    {
+        $customers = $this->customerService->getCustomersForTenant();
+        $products = $this->productService->getProductsForTenant();
+        $sale->load('items.product');
+
+        return view('sales.edit', compact('sale', 'customers', 'products'));
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateSaleRequest $request, Sale $sale): RedirectResponse

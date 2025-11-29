@@ -66,6 +66,7 @@ Route::prefix('customer-groups')->name('customer-groups.')->group(function () {
 });
 
 // Sales & Orders Routes
+    Route::get('sales/{sale}/invoice', [SaleController::class, 'invoice'])->name('sales.invoice');
     Route::get('sales/{sale}/items', [SaleController::class, 'getItems'])->name('sales.items');
     Route::resource('sales', SaleController::class);
 
