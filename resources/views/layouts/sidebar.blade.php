@@ -185,41 +185,41 @@
         </li>
 
         <!-- Repair Service -->
-        <li class="menu-item">
+        <li class="menu-item {{ request()->routeIs('repairs.*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ti tabler-tool"></i>
                 <div data-i18n="Repair Service">Repair Service</div>
             </a>
             <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="repair-tickets.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('repairs.index') ? 'active' : '' }}">
+                    <a href="{{ route('repairs.index') }}" class="menu-link">
                         <div data-i18n="Repair Tickets">Repair Tickets</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="repair-tickets-new.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('repairs.create') ? 'active' : '' }}">
+                    <a href="{{ route('repairs.create') }}" class="menu-link">
                         <div data-i18n="New Ticket">New Ticket</div>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="repair-in-progress.html" class="menu-link">
+                    <a href="{{ route('repairs.index', ['status' => 'IN_PROGRESS']) }}" class="menu-link">
                         <div data-i18n="In Progress">In Progress</div>
-                        <div class="badge text-bg-info rounded-pill ms-auto">8</div>
+                        <div class="badge text-bg-info rounded-pill ms-auto" id="in-progress-count">0</div>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="repair-ready.html" class="menu-link">
+                    <a href="{{ route('repairs.index', ['status' => 'READY']) }}" class="menu-link">
                         <div data-i18n="Ready for Delivery">Ready for Delivery</div>
-                        <div class="badge text-bg-success rounded-pill ms-auto">3</div>
+                        <div class="badge text-bg-success rounded-pill ms-auto" id="ready-count">0</div>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="repair-warranty.html" class="menu-link">
+                    <a href="{{ route('repairs.index', ['warranty' => '1']) }}" class="menu-link">
                         <div data-i18n="Warranty Claims">Warranty Claims</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="repair-parts.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('repair-parts.*') ? 'active' : '' }}">
+                    <a href="{{ route('repair-parts.index') }}" class="menu-link">
                         <div data-i18n="Repair Parts">Repair Parts</div>
                     </a>
                 </li>

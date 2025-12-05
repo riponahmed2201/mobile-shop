@@ -62,5 +62,10 @@ class Customer extends Model
         return $this->belongsToMany(CustomerGroup::class, 'customer_group_members')
             ->withTimestamps();
     }
+
+    public function repairTickets()
+    {
+        return $this->hasMany(\App\Models\Repair\RepairTicket::class);
+    }
 }
 

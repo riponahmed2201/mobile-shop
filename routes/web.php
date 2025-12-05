@@ -56,6 +56,16 @@ Route::patch('suppliers/{supplier}/toggle-status', [SupplierController::class, '
 Route::resource('purchase-orders', PurchaseOrderController::class);
 Route::patch('purchase-orders/{purchase_order}/status', [PurchaseOrderController::class, 'updateStatus'])->name('purchase-orders.update-status');
 
+// Repair Service
+Route::resource('repairs', App\Http\Controllers\Repair\RepairController::class);
+Route::patch('repairs/{repair_ticket}/status', [App\Http\Controllers\Repair\RepairController::class, 'updateStatus'])->name('repairs.update-status');
+Route::patch('repairs/{repair_ticket}/assign', [App\Http\Controllers\Repair\RepairController::class, 'assign'])->name('repairs.assign');
+Route::get('repairs/status/{status}', [App\Http\Controllers\Repair\RepairController::class, 'getByStatus'])->name('repairs.by-status');
+
+// Repair Parts Catalog
+Route::resource('repair-parts', App\Http\Controllers\Repair\RepairPartCatalogController::class);
+Route::patch('repair-parts/{repair_part}/stock', [App\Http\Controllers\Repair\RepairPartCatalogController::class, 'updateStock'])->name('repair-parts.update-stock');
+
 // Customer Routes (accessible without auth for now)
 Route::resource('customers', CustomerController::class);
 
