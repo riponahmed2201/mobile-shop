@@ -15,6 +15,8 @@ use App\Http\Controllers\Inventory\ProductController;
 use App\Http\Controllers\Inventory\StockAdjustmentController;
 use App\Http\Controllers\Inventory\StockTransferController;
 use App\Http\Controllers\Inventory\LowStockController;
+use App\Http\Controllers\Purchase\SupplierController;
+use App\Http\Controllers\Purchase\PurchaseOrderController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Sales\EmiController;
 use App\Http\Controllers\Sales\QuotationController;
@@ -46,6 +48,13 @@ Route::get('low-stock/critical', [LowStockController::class, 'critical'])->name(
 Route::get('low-stock/out-of-stock', [LowStockController::class, 'outOfStock'])->name('low-stock.out-of-stock');
 Route::get('low-stock/statistics', [LowStockController::class, 'getStatistics'])->name('low-stock.statistics');
 Route::get('low-stock/details', [LowStockController::class, 'getStockDetails'])->name('low-stock.details');
+
+// Purchases
+Route::resource('suppliers', SupplierController::class);
+Route::patch('suppliers/{supplier}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('suppliers.toggle-status');
+
+Route::resource('purchase-orders', PurchaseOrderController::class);
+Route::patch('purchase-orders/{purchase_order}/status', [PurchaseOrderController::class, 'updateStatus'])->name('purchase-orders.update-status');
 
 // Customer Routes (accessible without auth for now)
 Route::resource('customers', CustomerController::class);

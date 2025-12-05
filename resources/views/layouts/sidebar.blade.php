@@ -155,29 +155,29 @@
         </li>
 
         <!-- Purchases -->
-        <li class="menu-item">
+        <li class="menu-item {{ request()->routeIs('suppliers.*') || request()->routeIs('purchase-orders.*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ti tabler-truck-delivery"></i>
                 <div data-i18n="Purchases">Purchases</div>
             </a>
             <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="purchases-orders.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('purchase-orders.index') ? 'active' : '' }}">
+                    <a href="{{ route('purchase-orders.index') }}" class="menu-link">
                         <div data-i18n="Purchase Orders">Purchase Orders</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="purchases-orders-new.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('purchase-orders.create') ? 'active' : '' }}">
+                    <a href="{{ route('purchase-orders.create') }}" class="menu-link">
                         <div data-i18n="Create PO">Create PO</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="purchases-suppliers.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('suppliers.index') ? 'active' : '' }}">
+                    <a href="{{ route('suppliers.index') }}" class="menu-link">
                         <div data-i18n="Suppliers">Suppliers</div>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="purchases-received.html" class="menu-link">
+                    <a href="{{ route('purchase-orders.index', ['status' => 'RECEIVED']) }}" class="menu-link">
                         <div data-i18n="Received Orders">Received Orders</div>
                     </a>
                 </li>
