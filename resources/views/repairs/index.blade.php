@@ -289,6 +289,9 @@ $(document).ready(function() {
         ordering: false
     });
 
+    // Update badge counts on page load
+    updateBadgeCounts();
+
     // Apply filters
     $('#apply-filters').click(function() {
         const params = new URLSearchParams();
@@ -318,6 +321,26 @@ $(document).ready(function() {
         }
     });
 });
+
+// Update badge counts dynamically
+function updateBadgeCounts() {
+    // Update sidebar badges
+    $.ajax({
+        url: '{{ route("repairs.by-status", "IN_PROGRESS") }}',
+        method: 'GET',
+        success: function(data) {
+            $('#in-progress-count').text(data.tickets ? data.tickets.length : 0);
+        }
+    });
+
+    $.ajax({
+        url: '{{ route("repairs.by-status", "READY") }}',
+        method: 'GET',
+        success: function(data) {
+            $('#ready-count').text(data.tickets ? data.tickets.length : 0);
+        }
+    });
+}
 
 function assignTicket(ticketId) {
     currentTicketId = ticketId;
@@ -377,6 +400,7 @@ function updateStatus(ticketId, status) {
         success: function(response) {
             if (response.success) {
                 location.reload();
+                updateBadgeCounts(); // Update counts after status change
             } else {
                 alert('Failed to update ticket status: ' + response.message);
             }

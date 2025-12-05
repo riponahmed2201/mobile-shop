@@ -46,6 +46,10 @@ class RepairController extends Controller
             $query->assignedTo($request->assigned_to);
         }
 
+        if ($request->filled('warranty_repair')) {
+            $query->where('warranty_repair', $request->boolean('warranty_repair'));
+        }
+
         if ($request->filled('customer')) {
             $query->whereHas('customer', function ($q) use ($request) {
                 $q->where('full_name', 'like', '%' . $request->customer . '%')

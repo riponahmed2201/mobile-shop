@@ -157,7 +157,7 @@ class RepairPartCatalog extends Model
      */
     public function scopeLowStock($query)
     {
-        return $query->where('current_stock', '<=', $this->min_stock_level);
+        return $query->whereRaw('current_stock <= min_stock_level');
     }
 
     /**

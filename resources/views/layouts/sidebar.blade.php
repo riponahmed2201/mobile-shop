@@ -185,41 +185,87 @@
         </li>
 
         <!-- Repair Service -->
-        <li class="menu-item {{ request()->routeIs('repairs.*') ? 'active open' : '' }}">
+        <li class="menu-item {{ request()->routeIs('repairs.*') || request()->routeIs('repair-parts.*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ti tabler-tool"></i>
                 <div data-i18n="Repair Service">Repair Service</div>
             </a>
             <ul class="menu-sub">
-                <li class="menu-item {{ request()->routeIs('repairs.index') ? 'active' : '' }}">
+                <!-- Overview/Dashboard -->
+                <li class="menu-item {{ request()->routeIs('repairs.index') && !request('status') ? 'active' : '' }}">
                     <a href="{{ route('repairs.index') }}" class="menu-link">
-                        <div data-i18n="Repair Tickets">Repair Tickets</div>
+                        <i class="menu-icon icon-base ti tabler-dashboard me-2"></i>
+                        <div data-i18n="Overview">Overview</div>
                     </a>
                 </li>
+
+                <!-- Quick Actions -->
                 <li class="menu-item {{ request()->routeIs('repairs.create') ? 'active' : '' }}">
                     <a href="{{ route('repairs.create') }}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-plus me-2"></i>
                         <div data-i18n="New Ticket">New Ticket</div>
                     </a>
                 </li>
-                <li class="menu-item">
+
+                <!-- Status Filters -->
+                <li class="menu-item {{ request('status') === 'RECEIVED' ? 'active' : '' }}">
+                    <a href="{{ route('repairs.index', ['status' => 'RECEIVED']) }}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-inbox me-2"></i>
+                        <div data-i18n="Received">Received</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request('status') === 'DIAGNOSED' ? 'active' : '' }}">
+                    <a href="{{ route('repairs.index', ['status' => 'DIAGNOSED']) }}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-stethoscope me-2"></i>
+                        <div data-i18n="Diagnosed">Diagnosed</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request('status') === 'IN_PROGRESS' ? 'active' : '' }}">
                     <a href="{{ route('repairs.index', ['status' => 'IN_PROGRESS']) }}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-clock me-2"></i>
                         <div data-i18n="In Progress">In Progress</div>
                         <div class="badge text-bg-info rounded-pill ms-auto" id="in-progress-count">0</div>
                     </a>
                 </li>
-                <li class="menu-item">
+                <li class="menu-item {{ request('status') === 'PARTS_PENDING' ? 'active' : '' }}">
+                    <a href="{{ route('repairs.index', ['status' => 'PARTS_PENDING']) }}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-package me-2"></i>
+                        <div data-i18n="Parts Pending">Parts Pending</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request('status') === 'READY' ? 'active' : '' }}">
                     <a href="{{ route('repairs.index', ['status' => 'READY']) }}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-check-circle me-2"></i>
                         <div data-i18n="Ready for Delivery">Ready for Delivery</div>
                         <div class="badge text-bg-success rounded-pill ms-auto" id="ready-count">0</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="{{ route('repairs.index', ['warranty' => '1']) }}" class="menu-link">
+                <li class="menu-item {{ request('status') === 'DELIVERED' ? 'active' : '' }}">
+                    <a href="{{ route('repairs.index', ['status' => 'DELIVERED']) }}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-truck-delivery me-2"></i>
+                        <div data-i18n="Delivered">Delivered</div>
+                    </a>
+                </li>
+
+                <!-- Special Filters -->
+                <li class="menu-item {{ request('warranty_repair') === '1' ? 'active' : '' }}">
+                    <a href="{{ route('repairs.index', ['warranty_repair' => '1']) }}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-shield-check me-2"></i>
                         <div data-i18n="Warranty Claims">Warranty Claims</div>
                     </a>
                 </li>
+                <li class="menu-item {{ request('priority') === 'URGENT' ? 'active' : '' }}">
+                    <a href="{{ route('repairs.index', ['priority' => 'URGENT']) }}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-alert-triangle me-2"></i>
+                        <div data-i18n="Urgent">Urgent</div>
+                        <div class="badge text-bg-danger rounded-pill ms-auto" id="urgent-count">0</div>
+                    </a>
+                </li>
+
+                <!-- Parts Management -->
                 <li class="menu-item {{ request()->routeIs('repair-parts.*') ? 'active' : '' }}">
                     <a href="{{ route('repair-parts.index') }}" class="menu-link">
+                        <i class="menu-icon icon-base ti tabler-settings me-2"></i>
                         <div data-i18n="Repair Parts">Repair Parts</div>
                     </a>
                 </li>
