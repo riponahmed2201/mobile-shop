@@ -130,25 +130,25 @@
                         <div data-i18n="Categories">Categories</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="inventory-imei.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('imei.*') ? 'active' : '' }}">
+                    <a href="{{ route('imei.index') }}" class="menu-link">
                         <div data-i18n="IMEI Tracking">IMEI Tracking</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="inventory-adjustment.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('stock-adjustments.*') ? 'active' : '' }}">
+                    <a href="{{ route('stock-adjustments.index') }}" class="menu-link">
                         <div data-i18n="Stock Adjustment">Stock Adjustment</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="inventory-transfer.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('stock-transfers.*') ? 'active' : '' }}">
+                    <a href="{{ route('stock-transfers.index') }}" class="menu-link">
                         <div data-i18n="Stock Transfer">Stock Transfer</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="inventory-low-stock.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('low-stock.*') ? 'active' : '' }}">
+                    <a href="{{ route('low-stock.index') }}" class="menu-link">
                         <div data-i18n="Low Stock Alert">Low Stock Alert</div>
-                        <div class="badge text-bg-danger rounded-pill ms-auto">12</div>
+                        <div class="badge text-bg-danger rounded-pill ms-auto" id="low-stock-badge">0</div>
                     </a>
                 </li>
             </ul>

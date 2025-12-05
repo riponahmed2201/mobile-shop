@@ -10,7 +10,11 @@ use App\Http\Controllers\Customer\LoyaltyTransactionController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Inventory\BrandController;
 use App\Http\Controllers\Inventory\CategoryController;
+use App\Http\Controllers\Inventory\ImeiController;
 use App\Http\Controllers\Inventory\ProductController;
+use App\Http\Controllers\Inventory\StockAdjustmentController;
+use App\Http\Controllers\Inventory\StockTransferController;
+use App\Http\Controllers\Inventory\LowStockController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Sales\EmiController;
 use App\Http\Controllers\Sales\QuotationController;
@@ -31,6 +35,17 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 Route::resource('brands', BrandController::class);
 Route::resource('categories', CategoryController::class);
 Route::resource('products', ProductController::class);
+Route::resource('imei', ImeiController::class);
+Route::resource('stock-adjustments', StockAdjustmentController::class);
+Route::resource('stock-transfers', StockTransferController::class);
+Route::patch('stock-transfers/{stock_transfer}/status', [StockTransferController::class, 'updateStatus'])->name('stock-transfers.update-status');
+
+// Low Stock Alerts
+Route::get('low-stock', [LowStockController::class, 'index'])->name('low-stock.index');
+Route::get('low-stock/critical', [LowStockController::class, 'critical'])->name('low-stock.critical');
+Route::get('low-stock/out-of-stock', [LowStockController::class, 'outOfStock'])->name('low-stock.out-of-stock');
+Route::get('low-stock/statistics', [LowStockController::class, 'getStatistics'])->name('low-stock.statistics');
+Route::get('low-stock/details', [LowStockController::class, 'getStockDetails'])->name('low-stock.details');
 
 // Customer Routes (accessible without auth for now)
 Route::resource('customers', CustomerController::class);
