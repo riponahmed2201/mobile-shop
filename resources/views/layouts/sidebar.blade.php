@@ -369,38 +369,38 @@
         </li>
 
         <!-- Reports -->
-        <li class="menu-item">
+        <li class="menu-item {{ request()->routeIs('reports.*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ti tabler-chart-bar"></i>
                 <div data-i18n="Reports">Reports</div>
             </a>
             <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="reports-sales.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('reports.sales') ? 'active' : '' }}">
+                    <a href="{{ route('reports.sales') }}" class="menu-link">
                         <div data-i18n="Sales Report">Sales Report</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="reports-inventory.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('reports.inventory') ? 'active' : '' }}">
+                    <a href="{{ route('reports.inventory') }}" class="menu-link">
                         <div data-i18n="Inventory Report">Inventory Report</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="reports-customers.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('reports.customers') ? 'active' : '' }}">
+                    <a href="{{ route('reports.customers') }}" class="menu-link">
                         <div data-i18n="Customer Report">Customer Report</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="reports-financial.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('reports.financial') ? 'active' : '' }}">
+                    <a href="{{ route('reports.financial') }}" class="menu-link">
                         <div data-i18n="Financial Report">Financial Report</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="reports-product-performance.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('reports.product-performance') ? 'active' : '' }}">
+                    <a href="{{ route('reports.product-performance') }}" class="menu-link">
                         <div data-i18n="Product Performance">Product Performance</div>
                     </a>
                 </li>
-                <li class="menu-item">
+                {{-- <li class="menu-item">
                     <a href="reports-staff-performance.html" class="menu-link">
                         <div data-i18n="Staff Performance">Staff Performance</div>
                     </a>
@@ -414,7 +414,7 @@
                     <a href="reports-custom.html" class="menu-link">
                         <div data-i18n="Custom Reports">Custom Reports</div>
                     </a>
-                </li>
+                </li> --}}
             </ul>
         </li>
 

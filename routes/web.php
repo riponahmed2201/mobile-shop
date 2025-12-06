@@ -25,6 +25,7 @@ use App\Http\Controllers\Sales\SaleController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\Report\ReportController;
 
 // Public Routes
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
@@ -132,6 +133,16 @@ Route::prefix('emi')->name('emi.')->group(function () {
     Route::get('/{emiPlan}/agreement', [EmiController::class, 'agreement'])->name('agreement');
     Route::get('/installment/{installment}/receipt', [EmiController::class, 'receipt'])->name('receipt');
     Route::post('/{emiPlan}/payment', [EmiController::class, 'recordPayment'])->name('record-payment');
+});
+
+// Reports Routes
+Route::prefix('reports')->name('reports.')->group(function () {
+    Route::get('/sales', [ReportController::class, 'sales'])->name('sales');
+    Route::get('/sales/export', [ReportController::class, 'exportSales'])->name('sales.export');
+    Route::get('/inventory', [ReportController::class, 'inventory'])->name('inventory');
+    Route::get('/customers', [ReportController::class, 'customers'])->name('customers');
+    Route::get('/financial', [ReportController::class, 'financial'])->name('financial');
+    Route::get('/product-performance', [ReportController::class, 'productPerformance'])->name('product-performance');
 });
 
 });

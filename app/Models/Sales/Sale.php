@@ -69,4 +69,12 @@ class Sale extends Model
     {
         return $this->hasMany(ReturnModel::class);
     }
+
+    /**
+     * Get total quantity from all items
+     */
+    public function getTotalQuantityAttribute()
+    {
+        return $this->items->sum('quantity');
+    }
 }
