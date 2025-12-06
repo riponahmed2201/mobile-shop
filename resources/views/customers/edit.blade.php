@@ -24,8 +24,9 @@
                         <input type="text" class="form-control" id="full_name" name="full_name" value="{{ $customer->full_name }}" required />
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label" for="customer_code">Customer Code</label>
-                        <input type="text" class="form-control" id="customer_code" name="customer_code" value="{{ $customer->customer_code }}" maxlength="50" />
+                        <label class="form-label">Customer Code</label>
+                        <input type="text" class="form-control bg-light" value="{{ $customer->customer_code }}" readonly disabled />
+                        <small class="text-muted">Auto-generated code (cannot be changed)</small>
                     </div>
                 </div>
                 <div class="row">

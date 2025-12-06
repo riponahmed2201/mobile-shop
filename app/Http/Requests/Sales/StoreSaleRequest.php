@@ -15,6 +15,8 @@ class StoreSaleRequest extends FormRequest
     {
         return [
             'customer_id' => 'nullable|exists:customers,id',
+            'customer_name' => 'required|string|max:255',
+            'customer_phone' => 'required|string|max:20',
             'sale_date' => 'required|date',
             'discount_amount' => 'nullable|numeric|min:0',
             'tax_amount' => 'nullable|numeric|min:0',

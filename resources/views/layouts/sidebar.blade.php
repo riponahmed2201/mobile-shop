@@ -90,7 +90,7 @@
                         <div data-i18n="Customer Groups">Customer Groups</div>
                     </a>
                 </li>
-                <li class="menu-item {{ request()->routeIs('loyalty.*') ? 'active' : '' }}">
+                {{-- <li class="menu-item {{ request()->routeIs('loyalty.*') ? 'active' : '' }}">
                     <a href="{{ route('loyalty.index') }}" class="menu-link">
                         <div data-i18n="Loyalty Program">Loyalty Program</div>
                     </a>
@@ -99,7 +99,7 @@
                     <a href="{{ route('feedback.index') }}" class="menu-link">
                         <div data-i18n="Customer Feedback">Customer Feedback</div>
                     </a>
-                </li>
+                </li> --}}
             </ul>
         </li>
 
@@ -185,7 +185,7 @@
         </li>
 
         <!-- Repair Service -->
-        <li class="menu-item {{ request()->routeIs('repairs.*') || request()->routeIs('repair-parts.*') ? 'active open' : '' }}">
+        {{-- <li class="menu-item {{ request()->routeIs('repairs.*') || request()->routeIs('repair-parts.*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ti tabler-tool"></i>
                 <div data-i18n="Repair Service">Repair Service</div>
@@ -270,15 +270,15 @@
                     </a>
                 </li>
             </ul>
-        </li>
+        </li> --}}
 
         <!-- Apps & Pages -->
-        <li class="menu-header small">
+        {{-- <li class="menu-header small">
             <span class="menu-header-text" data-i18n="Marketing & Communication">Marketing & Communication</span>
-        </li>
+        </li> --}}
 
         <!-- Marketing -->
-        <li class="menu-item">
+        {{-- <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ti tabler-speakerphone"></i>
                 <div data-i18n="Marketing">Marketing</div>
@@ -320,7 +320,7 @@
                     </a>
                 </li>
             </ul>
-        </li>
+        </li> --}}
 
         <!-- Finance Section -->
         <li class="menu-header small">
@@ -435,7 +435,7 @@
                         <div data-i18n="Employees">Employees</div>
                     </a>
                 </li>
-                <li class="menu-item">
+                {{-- <li class="menu-item">
                     <a href="hr-attendance.html" class="menu-link">
                         <div data-i18n="Attendance">Attendance</div>
                     </a>
@@ -450,17 +450,17 @@
                     <a href="hr-roles.html" class="menu-link">
                         <div data-i18n="Roles & Permissions">Roles & Permissions</div>
                     </a>
-                </li>
+                </li> --}}
             </ul>
         </li>
 
         <!-- Settings Section -->
-        <li class="menu-header small">
+        {{-- <li class="menu-header small">
             <span class="menu-header-text" data-i18n="System Configuration">System Configuration</span>
-        </li>
+        </li> --}}
 
         <!-- Settings -->
-        <li class="menu-item">
+        {{-- <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ti tabler-settings"></i>
                 <div data-i18n="Settings">Settings</div>
@@ -518,7 +518,7 @@
                     </a>
                 </li>
             </ul>
-        </li>
+        </li> --}}
 
         <!-- Help & Support -->
         <li class="menu-item">
@@ -527,7 +527,7 @@
                 <div data-i18n="Help & Support">Help & Support</div>
             </a>
             <ul class="menu-sub">
-                <li class="menu-item">
+                {{-- <li class="menu-item">
                     <a href="help-docs.html" class="menu-link">
                         <div data-i18n="Documentation">Documentation</div>
                     </a>
@@ -536,7 +536,7 @@
                     <a href="help-tutorials.html" class="menu-link">
                         <div data-i18n="Video Tutorials">Video Tutorials</div>
                     </a>
-                </li>
+                </li> --}}
                 <li class="menu-item">
                     <a href="help-support.html" class="menu-link">
                         <div data-i18n="Contact Support">Contact Support</div>

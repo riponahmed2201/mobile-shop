@@ -15,7 +15,7 @@
             <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
-                
+
                 <!-- Basic Information -->
                 <h6 class="mb-3">Basic Information</h6>
                 <div class="row">
@@ -87,9 +87,8 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <label class="form-label" for="specifications">Specifications (JSON)</label>
-                        <textarea class="form-control" id="specifications" name="specifications" rows="3" placeholder='{"screen": "6.1 inch", "camera": "48MP"}'>{{ $product->specifications ? json_encode($product->specifications, JSON_PRETTY_PRINT) : '' }}</textarea>
-                        <small class="text-muted">Enter JSON format specifications</small>
+                        <label class="form-label" for="specifications">Specifications</label>
+                        <textarea class="form-control" id="specifications" name="specifications" rows="3" placeholder="Enter specifications">{{ $product->specifications }}</textarea>
                     </div>
                 </div>
 
@@ -203,7 +202,7 @@
         const previewDiv = document.getElementById('imagePreview');
         const previewImg = document.getElementById('previewImg');
         const currentImage = document.getElementById('currentImage');
-        
+
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {

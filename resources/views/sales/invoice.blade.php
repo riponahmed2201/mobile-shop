@@ -145,9 +145,11 @@
                             </td>
 
                             <td>
-                                {{ $sale->customer ? $sale->customer->full_name : 'Walk-in Customer' }}<br>
-                                {{ $sale->customer ? $sale->customer->mobile_primary : '' }}<br>
-                                {{ $sale->customer ? $sale->customer->email : '' }}
+                                <strong>Customer:</strong> {{ $sale->customer ? $sale->customer->full_name : 'Walk-in Customer' }}<br>
+                                <strong>Phone:</strong> {{ $sale->customer ? $sale->customer->mobile_primary : 'N/A' }}<br>
+                                @if($sale->customer && $sale->customer->email)
+                                <strong>Email:</strong> {{ $sale->customer->email }}
+                                @endif
                             </td>
                         </tr>
                     </table>

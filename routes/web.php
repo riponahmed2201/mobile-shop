@@ -29,6 +29,7 @@ use App\Http\Controllers\LandingPageController;
 // Public Routes
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 
+
 Route::middleware('user')->group(function () {
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

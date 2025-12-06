@@ -14,18 +14,13 @@
         <div class="card-body">
             <form action="{{ route('customers.store') }}" method="POST">
                 @csrf
-                
+
                 <!-- Basic Information -->
                 <h6 class="mb-3">Basic Information</h6>
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-12 mb-3">
                         <label class="form-label" for="full_name">Full Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="full_name" name="full_name" required />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" for="customer_code">Customer Code</label>
-                        <input type="text" class="form-control" id="customer_code" name="customer_code" maxlength="50" />
-                        <small class="text-muted">Leave empty to auto-generate</small>
                     </div>
                 </div>
                 <div class="row">

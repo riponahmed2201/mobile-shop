@@ -2,6 +2,10 @@
 
 @section('title', 'New Sale')
 
+@push('page_css')
+<link rel="stylesheet" href="{{ asset('assets/vendor/libs/select2/select2.css') }}">
+@endpush
+
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">
     <h4 class="py-3 mb-4"><span class="text-muted fw-light">Sales & Orders /</span> New Sale</h4>
@@ -13,9 +17,20 @@
         <div class="card-body">
             <form action="{{ route('sales.store') }}" method="POST" id="sale-form">
                 @csrf
-                
+
                 <div class="row mb-3">
-                    <div class="col-md-6">
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="customer_name">Customer Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="customer_name" name="customer_name" required />
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="customer_phone">Customer Phone <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="customer_phone" name="customer_phone" required />
+                    </div>
+
+                    {{-- <div class="col-md-6">
                         <label class="form-label">Customer</label>
                         <select name="customer_id" class="form-select @error('customer_id') is-invalid @enderror">
                             <option value="">Walk-in Customer</option>
@@ -26,8 +41,8 @@
                         @error('customer_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div>
-                    <div class="col-md-6">
+                    </div> --}}
+                    <div class="col-md-4">
                         <label class="form-label">Sale Date <span class="text-danger">*</span></label>
                         <input type="date" name="sale_date" class="form-control @error('sale_date') is-invalid @enderror" value="{{ old('sale_date', date('Y-m-d')) }}" required>
                         @error('sale_date')
@@ -39,7 +54,7 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label">Sale Type <span class="text-danger">*</span></label>
-                        <select name="sale_type" class="form-select @error('sale_type') is-invalid @enderror" required>
+                        <select name="sale_type" class="select2 form-select @error('sale_type') is-invalid @enderror" required>
                             <option value="RETAIL" {{ old('sale_type') == 'RETAIL' ? 'selected' : '' }}>Retail</option>
                             <option value="WHOLESALE" {{ old('sale_type') == 'WHOLESALE' ? 'selected' : '' }}>Wholesale</option>
                             <option value="EMI" {{ old('sale_type') == 'EMI' ? 'selected' : '' }}>EMI</option>
@@ -50,7 +65,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Payment Method <span class="text-danger">*</span></label>
-                        <select name="payment_method" class="form-select @error('payment_method') is-invalid @enderror" required>
+                        <select name="payment_method" class="select2 form-select @error('payment_method') is-invalid @enderror" required>
                             <option value="CASH" {{ old('payment_method') == 'CASH' ? 'selected' : '' }}>Cash</option>
                             <option value="CARD" {{ old('payment_method') == 'CARD' ? 'selected' : '' }}>Card</option>
                             <option value="BKASH" {{ old('payment_method') == 'BKASH' ? 'selected' : '' }}>bKash</option>
@@ -75,7 +90,7 @@
                 <div class="row mb-3" id="emi-fields" style="display: none;">
                     <div class="col-md-4">
                         <label class="form-label">Number of Installments <span class="text-danger">*</span></label>
-                        <select name="number_of_installments" class="form-select @error('number_of_installments') is-invalid @enderror">
+                        <select name="number_of_installments" class="select2 form-select @error('number_of_installments') is-invalid @enderror">
                             <option value="3" {{ old('number_of_installments') == 3 ? 'selected' : '' }}>3 Months</option>
                             <option value="6" {{ old('number_of_installments') == 6 ? 'selected' : '' }}>6 Months</option>
                             <option value="12" {{ old('number_of_installments') == 12 ? 'selected' : 'selected' }}>12 Months</option>
@@ -108,7 +123,7 @@
                 <div id="items-container">
                     <!-- Items will be added here -->
                 </div>
-                
+
                 <button type="button" class="btn btn-sm btn-secondary mb-3" onclick="addItem()">
                     <i class="ti tabler-plus me-1"></i> Add Item
                 </button>
@@ -141,44 +156,58 @@
 @endsection
 
 @push('page_js')
+<script src="{{ asset('assets/vendor/libs/select2/select2.js') }}"></script>
 <script>
 let itemIndex = 0;
 const products = @json($products);
 
 function addItem() {
     const container = document.getElementById('items-container');
+    const currentIndex = itemIndex;
     const itemHtml = `
-        <div class="card mb-2 item-row" data-index="${itemIndex}">
+        <div class="card mb-2 item-row" data-index="${currentIndex}">
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
                         <label class="form-label">Product</label>
-                        <select name="items[${itemIndex}][product_id]" class="form-select" required onchange="updatePrice(${itemIndex})">
+                        <select name="items[${currentIndex}][product_id]" class="form-select product-select" data-index="${currentIndex}" required>
                             <option value="">Select Product</option>
                             ${products.map(p => `<option value="${p.id}" data-price="${p.selling_price}">${p.product_name}</option>`).join('')}
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Quantity</label>
-                        <input type="number" name="items[${itemIndex}][quantity]" class="form-control" min="1" value="1" required onchange="calculateTotal(${itemIndex})">
+                        <input type="number" name="items[${currentIndex}][quantity]" class="form-control" min="1" value="1" required onchange="calculateTotal(${currentIndex})">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Unit Price</label>
-                        <input type="number" name="items[${itemIndex}][unit_price]" class="form-control" step="0.01" min="0" required onchange="calculateTotal(${itemIndex})">
+                        <input type="number" name="items[${currentIndex}][unit_price]" class="form-control" step="0.01" min="0" required onchange="calculateTotal(${currentIndex})">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Total</label>
-                        <input type="number" name="items[${itemIndex}][total_price]" class="form-control" step="0.01" readonly>
+                        <input type="number" name="items[${currentIndex}][total_price]" class="form-control" step="0.01" readonly>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
-                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(${itemIndex})">Remove</button>
+                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(${currentIndex})">Remove</button>
                     </div>
                 </div>
             </div>
         </div>
     `;
     container.insertAdjacentHTML('beforeend', itemHtml);
+    
+    // Initialize select2 on the newly added select
+    const $select = $(`select[name="items[${currentIndex}][product_id]"]`);
+    $select.wrap('<div class="position-relative"></div>').select2({
+        placeholder: 'Select Product',
+        dropdownParent: $select.parent(),
+        allowClear: true,
+        width: '100%'
+    }).on('select2:select', function(e) {
+        updatePrice(currentIndex);
+    });
+    
     itemIndex++;
 }
 
@@ -205,12 +234,31 @@ function calculateTotal(index) {
 
 // Add first item on load
 document.addEventListener('DOMContentLoaded', function() {
-    addItem();
+    // Initialize select2 on sale type and payment method
+    $('select[name="sale_type"]').wrap('<div class="position-relative"></div>').select2({
+        placeholder: "Select Sale Type",
+        dropdownParent: $('select[name="sale_type"]').parent(),
+        width: '100%'
+    });
     
+    $('select[name="payment_method"]').wrap('<div class="position-relative"></div>').select2({
+        placeholder: "Select Payment Method",
+        dropdownParent: $('select[name="payment_method"]').parent(),
+        width: '100%'
+    });
+    
+    $('select[name="number_of_installments"]').wrap('<div class="position-relative"></div>').select2({
+        placeholder: "Select Installments",
+        dropdownParent: $('select[name="number_of_installments"]').parent(),
+        minimumResultsForSearch: -1 // Hide search box
+    });
+    
+    addItem();
+
     // Toggle EMI fields based on sale type
     const saleTypeSelect = document.querySelector('select[name="sale_type"]');
     const emiFields = document.getElementById('emi-fields');
-    
+
     function toggleEmiFields() {
         if (saleTypeSelect.value === 'EMI') {
             emiFields.style.display = 'flex';
@@ -218,8 +266,9 @@ document.addEventListener('DOMContentLoaded', function() {
             emiFields.style.display = 'none';
         }
     }
-    
+
     saleTypeSelect.addEventListener('change', toggleEmiFields);
+    $('select[name="sale_type"]').on('select2:select', toggleEmiFields);
     toggleEmiFields(); // Initial check
 });
 </script>

@@ -2,6 +2,10 @@
 
 @section('title', 'Edit Sale')
 
+@push('page_css')
+<link rel="stylesheet" href="{{ asset('assets/vendor/libs/select2/select2.css') }}">
+@endpush
+
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">
     <h4 class="py-3 mb-4"><span class="text-muted fw-light">Sales & Orders /</span> Edit Sale #{{ $sale->invoice_number }}</h4>
@@ -16,21 +20,23 @@
                 @method('PUT')
                 
                 <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Customer</label>
-                        <select name="customer_id" class="form-select @error('customer_id') is-invalid @enderror">
-                            <option value="">Walk-in Customer</option>
-                            @foreach($customers as $customer)
-                                <option value="{{ $customer->id }}" {{ (old('customer_id') ?? $sale->customer_id) == $customer->id ? 'selected' : '' }}>
-                                    {{ $customer->full_name }} - {{ $customer->mobile_primary }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('customer_id')
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="customer_name">Customer Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('customer_name') is-invalid @enderror" id="customer_name" name="customer_name" value="{{ old('customer_name', $sale->customer->full_name ?? '') }}" required />
+                        @error('customer_name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-6">
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="customer_phone">Customer Phone <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('customer_phone') is-invalid @enderror" id="customer_phone" name="customer_phone" value="{{ old('customer_phone', $sale->customer->mobile_primary ?? '') }}" required />
+                        @error('customer_phone')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4">
                         <label class="form-label">Sale Date <span class="text-danger">*</span></label>
                         <input type="date" name="sale_date" class="form-control @error('sale_date') is-invalid @enderror" value="{{ old('sale_date', $sale->sale_date->format('Y-m-d')) }}" required>
                         @error('sale_date')
@@ -42,7 +48,7 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label">Sale Type <span class="text-danger">*</span></label>
-                        <select name="sale_type" class="form-select @error('sale_type') is-invalid @enderror" required>
+                        <select name="sale_type" class="select2 form-select @error('sale_type') is-invalid @enderror" required>
                             <option value="RETAIL" {{ (old('sale_type') ?? $sale->sale_type) == 'RETAIL' ? 'selected' : '' }}>Retail</option>
                             <option value="WHOLESALE" {{ (old('sale_type') ?? $sale->sale_type) == 'WHOLESALE' ? 'selected' : '' }}>Wholesale</option>
                             <option value="EMI" {{ (old('sale_type') ?? $sale->sale_type) == 'EMI' ? 'selected' : '' }}>EMI</option>
@@ -53,7 +59,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Payment Method <span class="text-danger">*</span></label>
-                        <select name="payment_method" class="form-select @error('payment_method') is-invalid @enderror" required>
+                        <select name="payment_method" class="select2 form-select @error('payment_method') is-invalid @enderror" required>
                             <option value="CASH" {{ (old('payment_method') ?? $sale->payment_method) == 'CASH' ? 'selected' : '' }}>Cash</option>
                             <option value="CARD" {{ (old('payment_method') ?? $sale->payment_method) == 'CARD' ? 'selected' : '' }}>Card</option>
                             <option value="BKASH" {{ (old('payment_method') ?? $sale->payment_method) == 'BKASH' ? 'selected' : '' }}>bKash</option>
@@ -119,6 +125,7 @@
 @endsection
 
 @push('page_js')
+<script src="{{ asset('assets/vendor/libs/select2/select2.js') }}"></script>
 <script>
 let itemIndex = 0;
 const products = @json($products);
@@ -127,6 +134,7 @@ const existingItems = @json($sale->items);
 function addItem(item = null) {
     const container = document.getElementById('items-container');
     const isExisting = item !== null;
+    const currentIndex = itemIndex;
     
     const productId = isExisting ? item.product_id : '';
     const quantity = isExisting ? item.quantity : 1;
@@ -134,12 +142,12 @@ function addItem(item = null) {
     const totalPrice = isExisting ? item.total_price : '';
 
     const itemHtml = `
-        <div class="card mb-2 item-row" data-index="${itemIndex}">
+        <div class="card mb-2 item-row" data-index="${currentIndex}">
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
                         <label class="form-label">Product</label>
-                        <select name="items[${itemIndex}][product_id]" class="form-select" required onchange="updatePrice(${itemIndex})">
+                        <select name="items[${currentIndex}][product_id]" class="form-select product-select" data-index="${currentIndex}" required>
                             <option value="">Select Product</option>
                             ${products.map(p => {
                                 const selected = p.id == productId ? 'selected' : '';
@@ -149,25 +157,37 @@ function addItem(item = null) {
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Quantity</label>
-                        <input type="number" name="items[${itemIndex}][quantity]" class="form-control" min="1" value="${quantity}" required onchange="calculateTotal(${itemIndex})">
+                        <input type="number" name="items[${currentIndex}][quantity]" class="form-control" min="1" value="${quantity}" required onchange="calculateTotal(${currentIndex})">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Unit Price</label>
-                        <input type="number" name="items[${itemIndex}][unit_price]" class="form-control" step="0.01" min="0" value="${unitPrice}" required onchange="calculateTotal(${itemIndex})">
+                        <input type="number" name="items[${currentIndex}][unit_price]" class="form-control" step="0.01" min="0" value="${unitPrice}" required onchange="calculateTotal(${currentIndex})">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Total</label>
-                        <input type="number" name="items[${itemIndex}][total_price]" class="form-control" step="0.01" value="${totalPrice}" readonly>
+                        <input type="number" name="items[${currentIndex}][total_price]" class="form-control" step="0.01" value="${totalPrice}" readonly>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
-                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(${itemIndex})">Remove</button>
+                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(${currentIndex})">Remove</button>
                     </div>
                 </div>
             </div>
         </div>
     `;
     container.insertAdjacentHTML('beforeend', itemHtml);
+    
+    // Initialize select2 on the newly added select
+    const $select = $(`select[name="items[${currentIndex}][product_id]"]`);
+    $select.wrap('<div class="position-relative"></div>').select2({
+        placeholder: 'Select Product',
+        dropdownParent: $select.parent(),
+        allowClear: true,
+        width: '100%'
+    }).on('select2:select', function(e) {
+        updatePrice(currentIndex);
+    });
+    
     itemIndex++;
 }
 
@@ -193,6 +213,19 @@ function calculateTotal(index) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize select2 on sale type and payment method
+    $('select[name="sale_type"]').wrap('<div class="position-relative"></div>').select2({
+        placeholder: "Select Sale Type",
+        dropdownParent: $('select[name="sale_type"]').parent(),
+        width: '100%'
+    });
+    
+    $('select[name="payment_method"]').wrap('<div class="position-relative"></div>').select2({
+        placeholder: "Select Payment Method",
+        dropdownParent: $('select[name="payment_method"]').parent(),
+        width: '100%'
+    });
+    
     if (existingItems && existingItems.length > 0) {
         existingItems.forEach(item => addItem(item));
     } else {

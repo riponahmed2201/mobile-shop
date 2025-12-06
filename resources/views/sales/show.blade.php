@@ -90,6 +90,9 @@
                         <dt class="col-sm-5">Customer:</dt>
                         <dd class="col-sm-7">{{ $sale->customer ? $sale->customer->full_name : 'Walk-in Customer' }}</dd>
 
+                        <dt class="col-sm-5">Phone:</dt>
+                        <dd class="col-sm-7">{{ $sale->customer ? $sale->customer->mobile_primary : 'N/A' }}</dd>
+
                         <dt class="col-sm-5">Sale Date:</dt>
                         <dd class="col-sm-7">{{ $sale->sale_date->format('d M Y') }}</dd>
 

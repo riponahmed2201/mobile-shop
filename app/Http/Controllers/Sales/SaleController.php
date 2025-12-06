@@ -184,11 +184,10 @@ class SaleController extends Controller
      */
     public function edit(Sale $sale): View
     {
-        $customers = $this->customerService->getCustomersForTenant();
         $products = $this->productService->getProductsForTenant();
-        $sale->load('items.product');
+        $sale->load('items.product', 'customer');
 
-        return view('sales.edit', compact('sale', 'customers', 'products'));
+        return view('sales.edit', compact('sale', 'products'));
     }
 
     /**

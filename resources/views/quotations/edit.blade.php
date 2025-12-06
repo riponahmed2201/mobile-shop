@@ -2,6 +2,10 @@
 
 @section('title', 'Edit Quotation')
 
+@push('page_css')
+<link rel="stylesheet" href="{{ asset('assets/vendor/libs/select2/select2.css') }}">
+@endpush
+
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">
     <h4 class="py-3 mb-4"><span class="text-muted fw-light">Sales & Orders /</span> Edit Quotation #{{ $quotation->quotation_number }}</h4>
@@ -18,11 +22,17 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label">Customer</label>
-                        <select name="customer_id" class="form-select @error('customer_id') is-invalid @enderror">
+                        <select name="customer_id" id="customer-select" class="select2 form-select @error('customer_id') is-invalid @enderror">
                             <option value="">Select Customer</option>
                             @foreach($customers as $customer)
                                 <option value="{{ $customer->id }}" {{ (old('customer_id') ?? $quotation->customer_id) == $customer->id ? 'selected' : '' }}>
-                                    {{ $customer->full_name }} - {{ $customer->mobile_primary }}
+                                    {{ $customer->full_name }}
+                                    @if($customer->mobile_primary)
+                                        ({{ $customer->mobile_primary }})
+                                    @endif
+                                    @if($customer->customer_code)
+                                        | {{ $customer->customer_code }}
+                                    @endif
                                 </option>
                             @endforeach
                         </select>
@@ -94,6 +104,7 @@
 @endsection
 
 @push('page_js')
+<script src="{{ asset('assets/vendor/libs/select2/select2.js') }}"></script>
 <script>
 let itemIndex = 0;
 const products = @json($products);
@@ -102,43 +113,56 @@ const existingItems = @json($quotation->items);
 function addItem(item = null) {
     const container = document.getElementById('items-container');
     const isExisting = item !== null;
+    const currentIndex = itemIndex;
     const productId = isExisting ? item.product_id : '';
     const quantity = isExisting ? item.quantity : 1;
     const unitPrice = isExisting ? item.unit_price : '';
     const totalPrice = isExisting ? item.total_price : '';
 
     const itemHtml = `
-        <div class="card mb-2 item-row" data-index="${itemIndex}">
+        <div class="card mb-2 item-row" data-index="${currentIndex}">
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
                         <label class="form-label">Product</label>
-                        <select name="items[${itemIndex}][product_id]" class="form-select" required onchange="updatePrice(${itemIndex})">
+                        <select name="items[${currentIndex}][product_id]" class="form-select product-select" data-index="${currentIndex}" required>
                             <option value="">Select Product</option>
                             ${products.map(p => `<option value="${p.id}" data-price="${p.selling_price}" ${p.id == productId ? 'selected' : ''}>${p.product_name}</option>`).join('')}
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Quantity</label>
-                        <input type="number" name="items[${itemIndex}][quantity]" class="form-control" min="1" value="${quantity}" required onchange="calculateTotal(${itemIndex})">
+                        <input type="number" name="items[${currentIndex}][quantity]" class="form-control" min="1" value="${quantity}" required onchange="calculateTotal(${currentIndex})">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Unit Price</label>
-                        <input type="number" name="items[${itemIndex}][unit_price]" class="form-control" step="0.01" min="0" value="${unitPrice}" required onchange="calculateTotal(${itemIndex})">
+                        <input type="number" name="items[${currentIndex}][unit_price]" class="form-control" step="0.01" min="0" value="${unitPrice}" required onchange="calculateTotal(${currentIndex})">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Total</label>
-                        <input type="number" name="items[${itemIndex}][total_price]" class="form-control" step="0.01" value="${totalPrice}" readonly>
+                        <input type="number" name="items[${currentIndex}][total_price]" class="form-control" step="0.01" value="${totalPrice}" readonly>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
-                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(${itemIndex})">Remove</button>
+                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(${currentIndex})">Remove</button>
                     </div>
                 </div>
             </div>
         </div>
     `;
     container.insertAdjacentHTML('beforeend', itemHtml);
+    
+    // Initialize select2 on the newly added product select
+    const $select = $(`select[name="items[${currentIndex}][product_id]"]`);
+    $select.wrap('<div class="position-relative"></div>').select2({
+        placeholder: 'Select Product',
+        dropdownParent: $select.parent(),
+        allowClear: true,
+        width: '100%'
+    }).on('select2:select', function(e) {
+        updatePrice(currentIndex);
+    });
+    
     itemIndex++;
 }
 
@@ -164,6 +188,14 @@ function calculateTotal(index) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2 for customer selection
+    $('#customer-select').wrap('<div class="position-relative"></div>').select2({
+        placeholder: 'Select Customer',
+        dropdownParent: $('#customer-select').parent(),
+        allowClear: true,
+        width: '100%'
+    });
+    
     if (existingItems && existingItems.length > 0) {
         existingItems.forEach(item => addItem(item));
     } else {

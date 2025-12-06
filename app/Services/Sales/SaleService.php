@@ -4,6 +4,7 @@ namespace App\Services\Sales;
 
 use App\Models\Sales\Sale;
 use App\Models\Sales\SaleItem;
+use App\Models\Customer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -17,7 +18,7 @@ class SaleService
     {
         try {
             $tenantId = $tenantId ?? $this->getTenantId();
-            
+
             return Sale::where('tenant_id', $tenantId)
                 ->with(['customer', 'soldBy']);
         } catch (Exception $e) {
@@ -36,7 +37,7 @@ class SaleService
     {
         $prefix = 'INV';
         $date = date('Ymd');
-        
+
         $lastSale = Sale::where('tenant_id', $tenantId)
             ->whereDate('created_at', today())
             ->whereNotNull('invoice_number')
@@ -59,10 +60,16 @@ class SaleService
     public function createSale(array $data, array $items): Sale
     {
         DB::beginTransaction();
-        
+
         try {
             $tenantId = $this->getTenantId();
-            
+
+            // Create or find customer if customer_name and customer_phone are provided
+            if (!empty($data['customer_name']) && !empty($data['customer_phone'])) {
+                $customer = $this->createOrFindCustomer($tenantId, $data['customer_name'], $data['customer_phone']);
+                $data['customer_id'] = $customer->id;
+            }
+
             // Generate invoice number if not provided
             if (empty($data['invoice_number'])) {
                 $data['invoice_number'] = $this->generateInvoiceNumber($tenantId);
@@ -101,6 +108,11 @@ class SaleService
                 $this->createEmiPlanForSale($sale, $data);
             }
 
+            // Update customer total purchases and last purchase date
+            if ($sale->customer_id) {
+                $this->updateCustomerPurchaseStats($sale->customer_id, $sale->total_amount, $sale->sale_date);
+            }
+
             DB::commit();
 
             Log::info('Sale created successfully', [
@@ -112,7 +124,7 @@ class SaleService
             return $sale->load('items', 'customer');
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Error creating sale', [
                 'data' => $data,
                 'error' => $e->getMessage()
@@ -127,8 +139,20 @@ class SaleService
     public function updateSale(Sale $sale, array $data, array $items): Sale
     {
         DB::beginTransaction();
-        
+
         try {
+            $tenantId = $this->getTenantId();
+            
+            // Store old values before update
+            $oldCustomerId = $sale->customer_id;
+            $oldTotalAmount = $sale->total_amount;
+
+            // Create or find customer if customer_name and customer_phone are provided
+            if (!empty($data['customer_name']) && !empty($data['customer_phone'])) {
+                $customer = $this->createOrFindCustomer($tenantId, $data['customer_name'], $data['customer_phone']);
+                $data['customer_id'] = $customer->id;
+            }
+
             // Calculate totals
             $totals = $this->calculateTotals($items, $data['discount_amount'] ?? 0, $data['tax_amount'] ?? 0);
 
@@ -158,6 +182,23 @@ class SaleService
                 ]);
             }
 
+            // Update customer purchase stats
+            if ($oldCustomerId && $oldCustomerId == $sale->customer_id) {
+                // Same customer - adjust the difference
+                $difference = $sale->total_amount - $oldTotalAmount;
+                $this->updateCustomerPurchaseStats($sale->customer_id, $difference, $sale->sale_date);
+            } else {
+                // Customer changed
+                if ($oldCustomerId) {
+                    // Deduct from old customer
+                    $this->updateCustomerPurchaseStats($oldCustomerId, -$oldTotalAmount, null);
+                }
+                if ($sale->customer_id) {
+                    // Add to new customer
+                    $this->updateCustomerPurchaseStats($sale->customer_id, $sale->total_amount, $sale->sale_date);
+                }
+            }
+
             DB::commit();
 
             Log::info('Sale updated successfully', [
@@ -168,7 +209,7 @@ class SaleService
             return $sale->fresh()->load('items', 'customer');
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Error updating sale', [
                 'sale_id' => $sale->id,
                 'error' => $e->getMessage()
@@ -195,10 +236,17 @@ class SaleService
 
             $saleId = $sale->id;
             $invoiceNumber = $sale->invoice_number;
-            
+            $customerId = $sale->customer_id;
+            $totalAmount = $sale->total_amount;
+
             $deleted = $sale->delete();
 
             if ($deleted) {
+                // Deduct from customer total purchases
+                if ($customerId) {
+                    $this->updateCustomerPurchaseStats($customerId, -$totalAmount, null);
+                }
+                
                 Log::info('Sale deleted successfully', [
                     'sale_id' => $saleId,
                     'invoice_number' => $invoiceNumber
@@ -255,7 +303,7 @@ class SaleService
     {
         try {
             $emiService = app(EmiService::class);
-            
+
             // Default EMI parameters (can be customized based on requirements)
             $emiData = [
                 'sale_id' => $sale->id,
@@ -267,13 +315,13 @@ class SaleService
                 'start_date' => $data['emi_start_date'] ?? now()->addMonth(), // Start next month
                 'status' => 'ACTIVE',
             ];
-            
+
             // Calculate installment amount
             $remainingAmount = $emiData['total_amount'] - $emiData['down_payment'];
             $emiData['installment_amount'] = $remainingAmount / $emiData['number_of_installments'];
-            
+
             $emiService->createEmiPlan($emiData);
-            
+
             Log::info('EMI plan created for sale', [
                 'sale_id' => $sale->id,
                 'emi_data' => $emiData
@@ -284,6 +332,118 @@ class SaleService
                 'error' => $e->getMessage()
             ]);
             // Don't throw exception, just log it so sale creation doesn't fail
+        }
+    }
+
+    /**
+     * Generate unique customer code
+     */
+    private function generateCustomerCode(int $tenantId): string
+    {
+        $prefix = 'CUST';
+        $date = date('ym'); // Year and Month (e.g., 2512 for Dec 2025)
+
+        $lastCustomer = Customer::where('tenant_id', $tenantId)
+            ->whereNotNull('customer_code')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($lastCustomer && $lastCustomer->customer_code) {
+            // Extract the last 4 digits from the customer code
+            $lastNumber = (int) substr($lastCustomer->customer_code, -4);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        return $prefix . $date . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Create or find customer by name and phone
+     */
+    private function createOrFindCustomer(int $tenantId, string $name, string $phone): Customer
+    {
+        try {
+            // Try to find existing customer by phone number
+            $customer = Customer::where('tenant_id', $tenantId)
+                ->where('mobile_primary', $phone)
+                ->first();
+
+            if ($customer) {
+                Log::info('Found existing customer', [
+                    'customer_id' => $customer->id,
+                    'phone' => $phone
+                ]);
+                return $customer;
+            }
+
+            // Generate customer code
+            $customerCode = $this->generateCustomerCode($tenantId);
+
+            // Create new customer
+            $customer = Customer::create([
+                'tenant_id' => $tenantId,
+                'customer_code' => $customerCode,
+                'full_name' => $name,
+                'mobile_primary' => $phone,
+                'customer_type' => 'NEW',
+                'is_active' => true,
+                'created_by' => auth()->id(),
+            ]);
+
+            Log::info('Created new customer', [
+                'customer_id' => $customer->id,
+                'customer_code' => $customerCode,
+                'name' => $name,
+                'phone' => $phone
+            ]);
+
+            return $customer;
+        } catch (Exception $e) {
+            Log::error('Error creating/finding customer', [
+                'name' => $name,
+                'phone' => $phone,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Update customer purchase statistics
+     */
+    private function updateCustomerPurchaseStats(int $customerId, float $amount, $saleDate = null): void
+    {
+        try {
+            $customer = Customer::find($customerId);
+            
+            if ($customer) {
+                // Update total purchases
+                $customer->total_purchases = ($customer->total_purchases ?? 0) + $amount;
+                
+                // Update last purchase date if provided and it's newer
+                if ($saleDate) {
+                    $saleDateTime = is_string($saleDate) ? \Carbon\Carbon::parse($saleDate) : $saleDate;
+                    if (!$customer->last_purchase_date || $saleDateTime->greaterThan($customer->last_purchase_date)) {
+                        $customer->last_purchase_date = $saleDateTime;
+                    }
+                }
+                
+                $customer->save();
+                
+                Log::info('Customer purchase stats updated', [
+                    'customer_id' => $customerId,
+                    'amount_change' => $amount,
+                    'new_total' => $customer->total_purchases
+                ]);
+            }
+        } catch (Exception $e) {
+            Log::error('Error updating customer purchase stats', [
+                'customer_id' => $customerId,
+                'error' => $e->getMessage()
+            ]);
+            // Don't throw exception to avoid breaking the sale transaction
         }
     }
 

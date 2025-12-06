@@ -2,6 +2,10 @@
 
 @section('title', 'New Quotation')
 
+@push('page_css')
+<link rel="stylesheet" href="{{ asset('assets/vendor/libs/select2/select2.css') }}">
+@endpush
+
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <h4 class="py-3 mb-4"><span class="text-muted fw-light">Sales & Orders /</span> New Quotation</h4>
@@ -17,12 +21,19 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Customer</label>
-                            <select name="customer_id" class="form-select @error('customer_id') is-invalid @enderror">
+                            <select name="customer_id" id="customer-select" class="select2 form-select @error('customer_id') is-invalid @enderror">
                                 <option value="">Select Customer</option>
                                 @foreach ($customers as $customer)
                                     <option value="{{ $customer->id }}"
                                         {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
-                                        {{ $customer->full_name }} - {{ $customer->mobile_primary }}</option>
+                                        {{ $customer->full_name }}
+                                        @if($customer->mobile_primary)
+                                            ({{ $customer->mobile_primary }})
+                                        @endif
+                                        @if($customer->customer_code)
+                                            | {{ $customer->customer_code }}
+                                        @endif
+                                    </option>
                                 @endforeach
                             </select>
                             @error('customer_id')
@@ -79,7 +90,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Terms & Conditions</label>
-                        <textarea name="terms_conditions" class="form-control" rows="3" id="editor"></textarea>
+                        <textarea name="terms_conditions" class="form-control" rows="3"></textarea>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
@@ -93,8 +104,7 @@
 @endsection
 
 @push('page_js')
- <script src="https://cdn.tiny.cloud/1/abc123xyz4567890abc123xyz/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-
+ <script src="{{ asset('assets/vendor/libs/select2/select2.js') }}"></script>
 
     <script>
         let itemIndex = 0;
@@ -102,38 +112,51 @@
 
         function addItem() {
             const container = document.getElementById('items-container');
+            const currentIndex = itemIndex;
             const itemHtml = `
-        <div class="card mb-2 item-row" data-index="${itemIndex}">
+        <div class="card mb-2 item-row" data-index="${currentIndex}">
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
                         <label class="form-label">Product</label>
-                        <select name="items[${itemIndex}][product_id]" class="form-select" required onchange="updatePrice(${itemIndex})">
+                        <select name="items[${currentIndex}][product_id]" class="form-select product-select" data-index="${currentIndex}" required>
                             <option value="">Select Product</option>
                             ${products.map(p => `<option value="${p.id}" data-price="${p.selling_price}">${p.product_name}</option>`).join('')}
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Quantity</label>
-                        <input type="number" name="items[${itemIndex}][quantity]" class="form-control" min="1" value="1" required onchange="calculateTotal(${itemIndex})">
+                        <input type="number" name="items[${currentIndex}][quantity]" class="form-control" min="1" value="1" required onchange="calculateTotal(${currentIndex})">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Unit Price</label>
-                        <input type="number" name="items[${itemIndex}][unit_price]" class="form-control" step="0.01" min="0" required onchange="calculateTotal(${itemIndex})">
+                        <input type="number" name="items[${currentIndex}][unit_price]" class="form-control" step="0.01" min="0" required onchange="calculateTotal(${currentIndex})">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Total</label>
-                        <input type="number" name="items[${itemIndex}][total_price]" class="form-control" step="0.01" readonly>
+                        <input type="number" name="items[${currentIndex}][total_price]" class="form-control" step="0.01" readonly>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
-                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(${itemIndex})">Remove</button>
+                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(${currentIndex})">Remove</button>
                     </div>
                 </div>
             </div>
         </div>
     `;
             container.insertAdjacentHTML('beforeend', itemHtml);
+
+            // Initialize select2 on the newly added product select
+            const $select = $(`select[name="items[${currentIndex}][product_id]"]`);
+            $select.wrap('<div class="position-relative"></div>').select2({
+                placeholder: 'Select Product',
+                dropdownParent: $select.parent(),
+                allowClear: true,
+                width: '100%'
+            }).on('select2:select', function(e) {
+                updatePrice(currentIndex);
+            });
+
             itemIndex++;
         }
 
@@ -159,15 +182,15 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Select2 for customer selection
+            $('#customer-select').wrap('<div class="position-relative"></div>').select2({
+                placeholder: 'Select Customer',
+                dropdownParent: $('#customer-select').parent(),
+                allowClear: true,
+                width: '100%'
+            });
+
             addItem();
         });
-
-        //Editor Initialization
-tinymce.init({
-    selector: '#editor',
-    plugins: 'image media link code',
-    toolbar: 'undo redo | bold italic | image media | code',
-    height: 400
-});
     </script>
 @endpush

@@ -18,7 +18,7 @@ class CustomerService
     {
         try {
             $tenantId = $tenantId ?? $this->getTenantId();
-            
+
             return Customer::where('tenant_id', $tenantId)
                 ->orderBy('full_name')
                 ->get();
@@ -38,8 +38,8 @@ class CustomerService
     {
         try {
             $tenantId = $tenantId ?? $this->getTenantId();
-            
-            return Customer::where('tenant_id', $tenantId);
+
+            return Customer::where('tenant_id', $tenantId)->latest();
         } catch (Exception $e) {
             Log::error('Error creating customers query', [
                 'tenant_id' => $tenantId,
@@ -55,19 +55,22 @@ class CustomerService
     private function generateCustomerCode(int $tenantId): string
     {
         $prefix = 'CUST';
+        $date = date('ym'); // Year and Month (e.g., 2512 for Dec 2025)
+
         $lastCustomer = Customer::where('tenant_id', $tenantId)
             ->whereNotNull('customer_code')
             ->orderBy('id', 'desc')
             ->first();
 
         if ($lastCustomer && $lastCustomer->customer_code) {
-            $lastNumber = (int) substr($lastCustomer->customer_code, -6);
+            // Extract the last 4 digits from the customer code
+            $lastNumber = (int) substr($lastCustomer->customer_code, -4);
             $newNumber = $lastNumber + 1;
         } else {
             $newNumber = 1;
         }
 
-        return $prefix . str_pad($newNumber, 6, '0', STR_PAD_LEFT);
+        return $prefix . $date . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -77,7 +80,7 @@ class CustomerService
     {
         try {
             $tenantId = $this->getTenantId();
-            
+
             // Generate customer code if not provided
             if (empty($data['customer_code'])) {
                 $data['customer_code'] = $this->generateCustomerCode($tenantId);
@@ -115,7 +118,7 @@ class CustomerService
                         $tagArray[] = trim($tag);
                     }
                 }
-                
+
                 foreach ($tagArray as $tag) {
                     if (!empty(trim($tag))) {
                         CustomerTag::create([
@@ -171,7 +174,7 @@ class CustomerService
             if ($tags !== null) {
                 // Delete existing tags
                 $customer->tags()->delete();
-                
+
                 // Add new tags
                 if (is_array($tags) && !empty($tags[0])) {
                     // Handle comma-separated tags
@@ -183,7 +186,7 @@ class CustomerService
                             $tagArray[] = trim($tag);
                         }
                     }
-                    
+
                     foreach ($tagArray as $tag) {
                         if (!empty(trim($tag))) {
                             CustomerTag::create([
@@ -224,7 +227,7 @@ class CustomerService
 
             $customerId = $customer->id;
             $customerName = $customer->full_name;
-            
+
             $deleted = $customer->delete();
 
             if ($deleted) {
@@ -252,7 +255,7 @@ class CustomerService
         if (auth()->check()) {
             return auth()->user()->tenant_id;
         }
-        
+
         // Fallback for testing if no auth
         return 1;
     }
