@@ -140,9 +140,12 @@ Route::prefix('reports')->name('reports.')->group(function () {
     Route::get('/sales', [ReportController::class, 'sales'])->name('sales');
     Route::get('/sales/export', [ReportController::class, 'exportSales'])->name('sales.export');
     Route::get('/inventory', [ReportController::class, 'inventory'])->name('inventory');
+    Route::get('/inventory/export', [ReportController::class, 'exportInventory'])->name('inventory.export');
     Route::get('/customers', [ReportController::class, 'customers'])->name('customers');
+    Route::get('/customers/export', [ReportController::class, 'exportCustomers'])->name('customers.export');
     Route::get('/financial', [ReportController::class, 'financial'])->name('financial');
     Route::get('/product-performance', [ReportController::class, 'productPerformance'])->name('product-performance');
+    Route::get('/product-performance/export', [ReportController::class, 'exportProductPerformance'])->name('product-performance.export');
 });
 
 });
