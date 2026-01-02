@@ -327,41 +327,48 @@
             <span class="menu-header-text" data-i18n="Finance & Reports">Finance & Reports</span>
         </li>
 
-        <!-- Finance -->
-        <li class="menu-item">
+        <!-- Finance -->>
+        <li class="menu-item {{ request()->routeIs('finance.*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ti tabler-currency-dollar"></i>
                 <div data-i18n="Finance">Finance</div>
             </a>
             <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="finance-cash-book.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('finance.cash-book.*') ? 'active' : '' }}">
+                    <a href="{{ route('finance.cash-book.index') }}" class="menu-link">
                         <div data-i18n="Cash Book">Cash Book</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="finance-expenses.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('finance.expenses.*') ? 'active' : '' }}">
+                    <a href="{{ route('finance.expenses.index') }}" class="menu-link">
                         <div data-i18n="Expenses">Expenses</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="finance-expense-categories.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('finance.expense-categories.*') ? 'active' : '' }}">
+                    <a href="{{ route('finance.expense-categories.index') }}" class="menu-link">
                         <div data-i18n="Expense Categories">Expense Categories</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="finance-profit-loss.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('finance.profit-loss.*') ? 'active' : '' }}">
+                    <a href="{{ route('finance.profit-loss.index') }}" class="menu-link">
                         <div data-i18n="Profit & Loss">Profit & Loss</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="finance-collections.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('finance.payment-collections.*') ? 'active' : '' }}">
+                    <a href="{{ route('finance.payment-collections.index') }}" class="menu-link">
                         <div data-i18n="Payment Collection">Payment Collection</div>
-                        <div class="badge text-bg-warning rounded-pill ms-auto">15</div>
+                        @php
+                            $pendingCount = \App\Models\Customer::where('tenant_id', session('tenant_id', 1))
+                                ->where('outstanding_balance', '>', 0)
+                                ->count();
+                        @endphp
+                        @if($pendingCount > 0)
+                            <div class="badge text-bg-warning rounded-pill ms-auto">{{ $pendingCount }}</div>
+                        @endif
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="finance-supplier-payments.html" class="menu-link">
+                <li class="menu-item {{ request()->routeIs('finance.supplier-payments.*') ? 'active' : '' }}">
+                    <a href="{{ route('finance.supplier-payments.index') }}" class="menu-link">
                         <div data-i18n="Supplier Payments">Supplier Payments</div>
                     </a>
                 </li>

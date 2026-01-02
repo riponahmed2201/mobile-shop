@@ -135,6 +135,33 @@ Route::prefix('emi')->name('emi.')->group(function () {
     Route::post('/{emiPlan}/payment', [EmiController::class, 'recordPayment'])->name('record-payment');
 });
 
+// Finance Routes
+Route::prefix('finance')->name('finance.')->group(function () {
+    // Expense Categories
+    Route::resource('expense-categories', App\Http\Controllers\Finance\ExpenseCategoryController::class);
+    
+    // Expenses
+    Route::resource('expenses', App\Http\Controllers\Finance\ExpenseController::class);
+    
+    // Cash Book
+    Route::get('cash-book', [App\Http\Controllers\Finance\CashBookController::class, 'index'])->name('cash-book.index');
+    Route::get('cash-book/create', [App\Http\Controllers\Finance\CashBookController::class, 'create'])->name('cash-book.create');
+    Route::post('cash-book', [App\Http\Controllers\Finance\CashBookController::class, 'store'])->name('cash-book.store');
+    Route::get('cash-book/export', [App\Http\Controllers\Finance\CashBookController::class, 'export'])->name('cash-book.export');
+    
+    // Profit & Loss
+    Route::get('profit-loss', [App\Http\Controllers\Finance\ProfitLossController::class, 'index'])->name('profit-loss.index');
+    Route::get('profit-loss/export', [App\Http\Controllers\Finance\ProfitLossController::class, 'export'])->name('profit-loss.export');
+    
+    // Payment Collections
+    Route::resource('payment-collections', App\Http\Controllers\Finance\PaymentCollectionController::class);
+    Route::get('payment-collections/{paymentCollection}/receipt', [App\Http\Controllers\Finance\PaymentCollectionController::class, 'receipt'])->name('payment-collections.receipt');
+    
+    // Supplier Payments
+    Route::resource('supplier-payments', App\Http\Controllers\Finance\SupplierPaymentController::class);
+    Route::get('supplier-payments/{supplierPayment}/voucher', [App\Http\Controllers\Finance\SupplierPaymentController::class, 'voucher'])->name('supplier-payments.voucher');
+});
+
 // Reports Routes
 Route::prefix('reports')->name('reports.')->group(function () {
     Route::get('/sales', [ReportController::class, 'sales'])->name('sales');
